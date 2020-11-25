@@ -1,0 +1,50 @@
+---
+title: "Ejercicio1"
+output: html_notebook
+---
+
+ 
+
+```{r}
+library(NeurocienciasIntroData)
+neocortex.animal.size
+
+```
+
+
+¿Qué columnas tengo?
+```{r}
+names(neocortex.animal.size)
+```
+¿Están codificadas adecuadamente?
+
+```{r}
+str(neocortex.animal.size)
+```
+Respuesta: No, todas están como factores
+
+
+Debo convertirlos en numéricos:
+```{r}
+neo<-lapply(neocortex.animal.size,as.character)
+neo<-lapply(neo,as.numeric)
+```
+
+
+Aplicar estadística descriptiva:
+Quiero hacerlo todo en un solo lapply
+```{r}
+funcion<-function(x){c(media=mean(x,na.rm = T), mediana=median(x,na.rm = T),
+                        desviacion_e=sd(x,na.rm = T))}
+lapply(neo,funcion)
+```
+
+
+Histograma
+```{r}
+
+```
+
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
