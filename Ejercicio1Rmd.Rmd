@@ -36,9 +36,9 @@ neo<-lapply(neo,convertir)
 
 Aplicar estadística descriptiva:
 ```{r}
-funcion<-function(x){c(media=mean(x,na.rm = T), mediana=median(x,na.rm = T),
+medidas<-function(x){c(media=mean(x,na.rm = T), mediana=median(x,na.rm = T),
                         desviacion_e=sd(x,na.rm = T))}
-lapply(neo,funcion)
+lapply(neo,medidas)
 ```
 
 
@@ -49,7 +49,8 @@ neo2 %>%
    gather() %>% 
   ggplot(aes(value), na.rm = TRUE) +
     facet_wrap(~ key, scales = "free") +
-    geom_histogram()
+    geom_histogram() +
+  scale_x_log10()
 ```
 
 
