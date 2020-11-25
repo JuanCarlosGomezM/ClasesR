@@ -47,7 +47,8 @@ Histograma
 neo2<-data.frame(neo)
 neo2 %>%
    gather() %>% 
-  ggplot(aes(value), na.rm = TRUE) +
+   drop_na() %>%
+  ggplot(aes(value)) +
     facet_wrap(~ key, scales = "free") +
     geom_histogram() +
   scale_x_log10()
