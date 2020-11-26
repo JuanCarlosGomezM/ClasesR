@@ -1,0 +1,308 @@
+---
+title: "Código Equipo 2"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+html_document:
+  theme: readable
+---
+(Previamente descargamos los datos de la página web:
+https://aging.brain-map.org/download/index
+y extrajimos fpkm_table_normalized.csv de la carpeta comprimida)
+
+**Cargar bibliotecas**:
+```{r message=FALSE, warning=FALSE}
+library(NeurocienciasIntroData)
+library(data.table)
+library(dplyr)
+library(pwr)
+library(sm)
+library(car)
+library(ggplot2)
+library(ggsignif)
+```
+
+**Elegir el archivo con los datos a ocupar**:
+```{r eval=FALSE}
+tbi_file<- choose.files()
+#En ventana emergente se debe buscar el archivo fpkm_table_normalized.csv
+
+#Cambiaremos el nombre de las columnas para facilitar su manipulacion
+normalized.rna.measures <- fread(tbi_file)
+setnames(normalized.rna.measures, "gene_id \\ rnaseq_profile_id", "gene_id")
+
+normalized.rna.measures <- melt(
+  normalized.rna.measures,
+  id.vars = "gene_id",
+  variable.name = "rnaseq_profile_id")
+normalized.rna.measures[, rnaseq_profile_id := as.factor(rnaseq_profile_id)]
+
+#Creamos un archivo csv para no tener que repetir los pasos anteriores
+fwrite(normalized.rna.measures, "rna_data.csv", row.names = F)
+```
+
+(Si limpiamos nuestro ambiente debemos leer el archivo de nuevo)
+**Para leer el archivo rna_data.csv**:
+```{r eval=FALSE}
+normalized.rna.measures <- fread(choose.files()) 
+#En ventana emergente se debe buscar el archivo rna_data.csv
+
+normalized.rna.measures
+```
+
+**Unir información de ARN con información de sujetos**:
+(NOTA: Ejecutar este chunk puede ser tardado.)
+```{r eval=FALSE}
+#Informacion pertinente de los donadores
+donor.info.dt <- donor.information
+setDT(donor.info.dt)
+donor.info.dt[, .(donor_id, ever_tbi_w_loc, dsm_iv_clinical_diagnosis)]
+
+#Informacion pertinente de los genes
+rows.genes.dt <- rows.genes[, .(gene_id, gene_symbol)]
+column.samples.dt <- column.samples[, .(
+  rnaseq_profile_id,
+  donor_id,hemisphere,
+  structure_acronym)]
+
+#Informacion pertinente del ARN
+normalized.rna.measures[, gene_id := as.factor(gene_id)]
+normalized.rna.measures[, rnaseq_profile_id := as.factor(rnaseq_profile_id)]
+
+#Unimos la informacion asegurando de que correspondan
+#usando las etiquetas de gene_id, rnaseq_profile_id y donor_id
+rna.mesure.genes <- merge(rows.genes.dt, normalized.rna.measures, 
+                          by = "gene_id")
+rna.mesure.genes <- merge(column.samples.dt, rna.mesure.genes, 
+                          by = "rnaseq_profile_id")
+rna.mesure.genes <- merge(
+  donor.information[, .(
+    donor_id = as.factor(donor_id),
+    ever_tbi_w_loc,
+    dsm_iv_clinical_diagnosis )],
+  rna.mesure.genes,
+  by = "donor_id")
+```
+
+**Filtrados y creación de grupo_AD**:
+Se puede hacer un data frame que contenga solamente los sujetos que deseamos;
+sin embargo, optamos por hacerlo por partes para ver cuáles se iban
+eliminando y por qué razón.
+Se eligió el hemisferio derecho porque es del que se tienen más muestras.
+Son 16 con AD sin TBI, pero se elimina uno que no tenía los valores
+para ninguno de los genes de nuestro interés
+y se eliminan 2 que eran del hemisferio izquierdo, quedando 13.
+```{r}
+#Seleccionamos los genes de nuestro interes,
+#de materia blanca del lóbulo derecho
+MBP_PLP1_FWM<-rna.mesure.genes[(gene_symbol == "MBP" & 
+                                  structure_acronym == "FWM" & 
+                                  hemisphere=="right" ) | 
+                                 (gene_symbol=="PLP1" &
+                                  structure_acronym=="FWM"& 
+                                    hemisphere=="right")] 
+
+#Seleccionamos los sujetos
+MBP_AD_sin_TBI<-subset(MBP_PLP1_FWM, 
+                       dsm_iv_clinical_diagnosis=="Alzheimer's Disease Type" & 
+                         ever_tbi_w_loc=="N" & gene_symbol=="MBP")
+count(MBP_AD_sin_TBI) #13 de MBP con AD sin TBI
+
+PLP1_AD_sin_TBI<-subset(MBP_PLP1_FWM, 
+                        dsm_iv_clinical_diagnosis=="Alzheimer's Disease Type" & 
+                          ever_tbi_w_loc=="N" & gene_symbol=="PLP1")
+count(PLP1_AD_sin_TBI) #13 de PLP1 con AD sin TBI, los mismos 13 anteriores
+
+#Quitamos algunas columnas que se repetirian al unir los subsets
+PLP1_AD_sin_TBI<-select(PLP1_AD_sin_TBI, -dsm_iv_clinical_diagnosis, 
+                        -hemisphere)
+
+#Finalmente unimos la información de los subsets con la etiqueda donor_id
+#para crear el grupo con AD sin TBI
+grupo_AD <- merge(PLP1_AD_sin_TBI, MBP_AD_sin_TBI, by = "donor_id",
+                  suffixes = c(".PLP1",".MBP"))
+#Las columnas con nombre repetido que necesitamos
+#toman el sufijo del subset del que provienen para poder distinguirlas
+
+#Elegimos solamente los datos que ocuparemos
+grupo_AD<-grupo_AD[, .(donor_id,dsm_iv_clinical_diagnosis,
+                       hemisphere, value.PLP1, value.MBP)]
+count(grupo_AD) #resultado: 13 sujetos con AD sin TBI, unidos por el donor_id
+#View(grupo_AD)
+```
+
+**Filtrados y creación de grupo_control**:
+Son 27 sin AD ni TBI,
+pero se eliminan 13 que pertenecen al hemisferio izquierdo, quedan 14.
+Después eliminamos al sujeto que no tiene los valores para PLP1, quedando 13.
+```{r}
+#Seleccionamos los sujetos
+PLP1_sanos<-subset(MBP_PLP1_FWM, dsm_iv_clinical_diagnosis=="No Dementia" &
+                     ever_tbi_w_loc=="N" & gene_symbol=="PLP1")
+count(PLP1_sanos) #14
+
+#Eliminamos al sujeto que no tiene los valores para PLP1
+PLP1_control<-subset(PLP1_sanos,donor_id!=326765689)
+count(PLP1_control)
+#Quedan 13, el mismo numero que el grupo contra el que vamos a comparar,
+#debido a esto ya no es necesario hacer submuestreo.
+
+MBP_sanos<-subset(MBP_PLP1_FWM, dsm_iv_clinical_diagnosis=="No Dementia" &
+                    ever_tbi_w_loc=="N" & gene_symbol=="MBP")
+count(MBP_sanos) #los mismos 14 sin AD ni TBI previamente mencionados
+
+#Submuestreo de MBP sin AD ni TBI
+#usando el mismo donor_id del subset de PLP1 sin AD ni TBI
+MBP_control<-MBP_sanos[MBP_sanos$donor_id %in% PLP1_control$donor_id, ] 
+count(MBP_control) #13, los mismos 13 de PLP1_control
+#Se elimino el mismo sujeto que no tenia los datos para PLP1 aunque si de MBP
+
+#Quitamos algunas columnas que se repetirian al unir los subsets
+MBP_control<-select(MBP_control, -dsm_iv_clinical_diagnosis, -hemisphere)
+
+#Finalmente unimos la informacion de los subsets con la etiqueta donor_id
+#para formar el grupo control sin AD ni TBI
+grupo_control <- merge(PLP1_control, MBP_control, by = "donor_id", 
+                       suffixes = c(".PLP1",".MBP"))
+#Las columnas con nombre repetido que necesitamos
+#toman el sufijo del subset del que provienen para poder distinguirlas
+
+#Elegimos solamente los datos que ocuparemos
+grupo_control<-grupo_control[, .(donor_id, dsm_iv_clinical_diagnosis,
+                                 hemisphere, value.PLP1, value.MBP)]
+count(grupo_control) # Resultado: 13, unidos por el donor_id,
+#nuestro grupo control tiene mismo numero que el grupo AD
+
+#View(grupo_control)
+```
+
+**Data frames que contengan ambos grupos**:
+El primero, "Todos", es un filtrado directo, se pudo haber hecho al inicio.
+Lo ocuparemos para graficar los resultados.
+El segundo, "Ambos_grupos", es uniendo los grupos que se hicieron previamente.
+Esto les da una estructura diferente y nos facilita manipularlos más adelante.
+```{r}
+Todos<-MBP_PLP1_FWM[(donor_id!=326765689 & ever_tbi_w_loc=="N"&
+                       (dsm_iv_clinical_diagnosis=="Alzheimer's Disease Type" |
+                          dsm_iv_clinical_diagnosis=="No Dementia"))]
+count(Todos)
+#52 filas:
+#13 de MBP con AD, 13 de PLP1 con AD, 13 de MBP sin AD y 13 de PLP1 sin AD
+View(Todos)
+
+Ambos_grupos<-rbind(grupo_AD,grupo_control) #Unimos filas de ambos grupos
+count(Ambos_grupos) #26 filas, 13 del grupo AD y 13 del grupo control
+View(Ambos_grupos) 
+```
+
+**Análisis exploratorio de los datos**:
+Conociendo la n, ya podemos calcular
+el poder estadístico que tendrá el análisis.
+Haremos gráficos de densidad y comprobaremos normalidad
+mediante un test de Shapiro-Wilk.
+Haremos Q-Q plots y comprobaremos homocedasticidad
+mediante un test de Bartlett.
+```{r}
+#Calculo de poder estadistico:
+pwr.t.test(n = 13, 
+           d = 0.8, 
+           sig.level = 0.05, 
+           type = "two.sample", 
+           alternative = "less", 
+           power = NULL)
+#power = 0.0001422137,
+#muy baja probabilidad de no cometer un falso negativo debido a la n
+
+#Graficos de densidad para observar distribuciones
+sm.density.compare(Ambos_grupos$value.MBP, as.factor(
+  Ambos_grupos$dsm_iv_clinical_diagnosis), xlab="MBP")
+sm.density.compare(Ambos_grupos$value.PLP1, as.factor(
+  Ambos_grupos$dsm_iv_clinical_diagnosis), xlab="PLP1")
+#En rojo estan las densidades del grupo con AD
+#y en verde las densidades del grupo control
+
+#Test de Shapiro-Wilk para corroborar que se ajusten a distribucion normal
+shapiro.test(grupo_AD$value.MBP) #p>0.05
+shapiro.test(grupo_AD$value.PLP1) #p>0.05
+shapiro.test(grupo_control$value.MBP) #p>0.05
+shapiro.test(grupo_control$value.PLP1) #p>0.05
+#Hipotesis nula es que vienen de distribucion normal,
+#p<alfa indicaria que hay que rechazarla
+#Todas tienen distribucion normal (p>alfa)
+
+#Grafico cuantil-cuantil para observar dispersiones en las distribuciones
+qqPlot(grupo_AD$value.MBP)
+qqPlot(grupo_AD$value.PLP1) #esta muestra parece ser la mas desigual
+qqPlot(grupo_control$value.MBP)
+qqPlot(grupo_control$value.PLP1)
+
+#Test de Bartlett para corroborar homogeneidad de varianza
+bartlett.test(list(grupo_AD$value.MBP,grupo_control$value.MBP))
+#El test no encontro diferencias significativas
+#en las varianzas de MBP para los 2 grupos (p>alfa)
+bartlett.test(list(grupo_AD$value.PLP1,grupo_control$value.PLP1))
+#El test si encontro diferencias significativas
+#en las varianzas de PLP1 para los 2 grupos (p<alfa)
+```
+
+**Análisis estadístico de los datos**:
+Calcularemos las medidas de tendencia central y la desviación estándar.
+Haremos pruebas t para comparar 2 grupos independientes.
+Para MBP basta usar una prueba t de student 
+porque los supuestos de normalidad y homocedasticidad ya fueron comprobados.
+Para PLP1 se necesita una prueba t adaptada a varianzas desiguales
+ya que las muestras son heterocedásticas,
+por lo que usaremos una prueba t de Welch.
+```{r}
+#Medidas de tendencia central y desviaciones estandar
+Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
+  PLP1_media = mean(value.PLP1), PLP_mediana=median(value.PLP1),
+  PLP1_desviacion_e = sd(value.PLP1),
+  MBP_media=mean(value.MBP), MBP_mediana=median(value.MBP),
+  MBP_desviacion_e=sd(value.MBP))
+
+#Prueba t de student para MBP
+t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
+       var.equal = TRUE, alternative="less")
+#p<0.05 Hay diferencia significativa. (p-value = 0.02246)
+#diferencia media = 2047.141 - 3202.342 = -1155.201
+#Es negativo, disminuyo expresion de MBP en grupo con AD
+
+#Prueba t de Welch para PLP1
+t.test(value.PLP1 ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
+       var.equal = FALSE, alternative="less")
+#p>0.05 sin diferencia. (p-value = 0.171)
+```
+
+**Gráficos**:
+Haremos un gráfico de barras y un gráfico de cajas y bigotes.
+```{r}
+Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis)%>%
+  mutate(se = sd(value) / sqrt(length(value)),mean_value=mean(value))%>%
+ggplot(aes(gene_symbol,mean_value,fill=dsm_iv_clinical_diagnosis)) +
+  geom_bar(stat = 'identity', color="black", position = 'dodge') +
+  geom_signif(y_position=c(4100), xmin=c(0.8), xmax=c(1.2), annotation=c("*"), 
+              tip_length=0.03) + 
+  scale_fill_manual(values=c("#d8b365", "#5ab4ac"))+
+  geom_errorbar(aes(ymin=mean_value-se, ymax=mean_value+se), 
+                position = "dodge") + #tendra barras de error estandar
+  labs(x="Gen",y="ARN normalizado (FPKM)", fill="Diagnóstico DSM-IV") +
+  ggtitle("Niveles promedio de ARN en sustancia blanca 
+          de lóbulo parietal derecho") +
+  ylim(0,4500)
+  
+
+Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis)%>%
+  ggplot(aes(gene_symbol,value,fill=dsm_iv_clinical_diagnosis)) +
+  geom_boxplot() +
+  geom_signif(y_position=c(7000), xmin=c(0.8), xmax=c(1.2), annotation=c("*"),
+              tip_length=0.03)+ #tendra asterisco indicando diferencia
+  #no confundir asterisco con punto de valor atipico
+  scale_fill_manual(values = c("#d8b365", "#5ab4ac")) +
+  labs(x="Gen",y="ARN normalizado (FPKM)", fill="Diagnóstico DSM-IV") +
+  ggtitle("Niveles de ARN en sustancia blanca de lóbulo parietal derecho") +
+  ylim(0,7500)
+```
+
