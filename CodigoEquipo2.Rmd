@@ -58,7 +58,7 @@ normalized.rna.measures
 #Informacion pertinente de los donadores
 donor.info.dt <- donor.information
 setDT(donor.info.dt)
-donor.info.dt[, .(donor_id, ever_tbi_w_loc, dsm_iv_clinical_diagnosis)]
+donor.info.dt[, .(donor_id, ever_tbi_w_loc, dsm_iv_clinical_diagnosis, braak)]
 
 #Informacion pertinente de los genes
 rows.genes.dt <- rows.genes[, .(gene_id, gene_symbol)]
@@ -80,7 +80,7 @@ rna.mesure.genes <- merge(column.samples.dt, rna.mesure.genes,
 rna.mesure.genes <- merge(
   donor.information[, .(
     donor_id = as.factor(donor_id),
-    ever_tbi_w_loc,
+    ever_tbi_w_loc, braak,
     dsm_iv_clinical_diagnosis )],
   rna.mesure.genes,
   by = "donor_id")
@@ -117,7 +117,7 @@ count(PLP1_AD_sin_TBI) #13 de PLP1 con AD sin TBI, los mismos 13 anteriores
 
 #Quitamos algunas columnas que se repetirian al unir los subsets
 PLP1_AD_sin_TBI<-select(PLP1_AD_sin_TBI, -dsm_iv_clinical_diagnosis, 
-                        -hemisphere)
+                        -hemisphere, -braak)
 
 #Finalmente unimos la información de los subsets con la etiqueda donor_id
 #para crear el grupo con AD sin TBI
@@ -128,7 +128,7 @@ grupo_AD <- merge(PLP1_AD_sin_TBI, MBP_AD_sin_TBI, by = "donor_id",
 
 #Elegimos solamente los datos que ocuparemos
 grupo_AD<-grupo_AD[, .(donor_id,dsm_iv_clinical_diagnosis,
-                       hemisphere, value.PLP1, value.MBP)]
+                       hemisphere, value.PLP1, value.MBP, braak)]
 count(grupo_AD) #resultado: 13 sujetos con AD sin TBI, unidos por el donor_id
 #View(grupo_AD)
 ```
@@ -160,7 +160,7 @@ count(MBP_control) #13, los mismos 13 de PLP1_control
 #Se elimino el mismo sujeto que no tenia los datos para PLP1 aunque si de MBP
 
 #Quitamos algunas columnas que se repetirian al unir los subsets
-MBP_control<-select(MBP_control, -dsm_iv_clinical_diagnosis, -hemisphere)
+MBP_control<-select(MBP_control, -dsm_iv_clinical_diagnosis, -hemisphere, -braak)
 
 #Finalmente unimos la informacion de los subsets con la etiqueta donor_id
 #para formar el grupo control sin AD ni TBI
@@ -171,7 +171,7 @@ grupo_control <- merge(PLP1_control, MBP_control, by = "donor_id",
 
 #Elegimos solamente los datos que ocuparemos
 grupo_control<-grupo_control[, .(donor_id, dsm_iv_clinical_diagnosis,
-                                 hemisphere, value.PLP1, value.MBP)]
+                                 hemisphere, value.PLP1, value.MBP, braak)]
 count(grupo_control) # Resultado: 13, unidos por el donor_id,
 #nuestro grupo control tiene mismo numero que el grupo AD
 
@@ -207,13 +207,21 @@ mediante un test de Bartlett.
 ```{r}
 #Calculo de poder estadistico:
 pwr.t.test(n = 13, 
-           d = 0.8, 
+           d = -0.8, 
            sig.level = 0.05, 
            type = "two.sample", 
            alternative = "less", 
            power = NULL)
-#power = 0.0001422137,
-#muy baja probabilidad de no cometer un falso negativo debido a la n
+#power = 0.6318458
+
+#Calculo de la n ideal:
+pwr.t.test(n = NULL, 
+           d = -0.8, 
+           sig.level = 0.05, 
+           type = "two.sample", 
+           alternative = "less", 
+           power = 0.8)
+#n = 20.03277
 
 #Graficos de densidad para observar distribuciones
 sm.density.compare(Ambos_grupos$value.MBP, as.factor(
@@ -269,6 +277,11 @@ t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
 #p<0.05 Hay diferencia significativa. (p-value = 0.02246)
 #diferencia media = 2047.141 - 3202.342 = -1155.201
 #Es negativo, disminuyo expresion de MBP en grupo con AD
+
+#Comprobación de la diferencia en MBP con prueba t para varianzas desiguales
+t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
+       var.equal = FALSE, alternative="less")
+#p-value = 0.02369
 
 #Prueba t de Welch para PLP1
 t.test(value.PLP1 ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
