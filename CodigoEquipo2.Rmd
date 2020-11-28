@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 (Previamente descargamos los datos de la página web:
-https://aging.brain-map.org/download/index
+<https://aging.brain-map.org/download/index>
 y extrajimos *fpkm_table_normalized.csv* de la carpeta comprimida)
 
 ##Cargar bibliotecas
