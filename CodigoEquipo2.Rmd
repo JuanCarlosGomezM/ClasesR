@@ -53,7 +53,6 @@ normalized.rna.measures <- fread(choose.files())
   
 ## Unir información de ARN con información de sujetos:
   
-  
 ### Convertimos en factores las columnas correspondientes:
 ```{r}
 normalized.rna.measures[, gene_id := as.factor(gene_id)]
@@ -61,7 +60,15 @@ normalized.rna.measures[, rnaseq_profile_id := as.factor(rnaseq_profile_id)]
 ```
   
   
-#### Guardamos la informacion pertinente de los genes y de las muestras
+#### Guardamos la información pertinente de los donadores
+```{r}
+donor.info.dt <- donor.information
+setDT(donor.info.dt)
+donor.info.dt[, .(donor_id, ever_tbi_w_loc, dsm_iv_clinical_diagnosis, braak)]
+```
+  
+  
+#### Guardamos la informacón pertinente de los genes y de las muestras
 ```{r}
 rows.genes.dt <- rows.genes[, .(gene_id, gene_symbol)]
 
@@ -78,7 +85,7 @@ rna.measure.genes <- merge(rows.genes.dt, normalized.rna.measures,
 ```
   
   
-##### Unimos con la informacion de las muestras
+##### Ahora unimos con la información de las muestras
 En este paso agregamos la información de los hemisferios y de las estructuras.
 Nos aseguramos de que correspondan usando la etiqueta *rnaseq_profile_id*.
 ```{r}
@@ -87,13 +94,15 @@ rna.measure.genes <- merge(column.samples.dt, rna.measure.genes,
 ```
   
   
-##### Unimos con la información relevante de los donadores
+##### Por último, unimos con la información relevante de los donadores
 Nos aseguramos de que correspondan usando la etiqueta *donor_id*.
 (Nota: Ejecutar este chunk puede ser tardado)
 ```{r}
-rna.measure.genes <- merge(donor.information[, .(donor_id = as.factor(donor_id),
-    ever_tbi_w_loc, braak, dsm_iv_clinical_diagnosis )], rna.measure.genes,
-    by = "donor_id")
+rna.measure.genes <- merge(
+  donor.information[, .(
+    donor_id = as.factor(donor_id), ever_tbi_w_loc, braak,
+    dsm_iv_clinical_diagnosis )], rna.measure.genes,
+  by = "donor_id")
 ```
 ---
   
@@ -160,7 +169,6 @@ Resultado: grupo_AD: 13 sujetos con AD sin TBI, unidos por el *donor_id*
   
   
 ## Filtrados y creación de grupo_control:
-  
   
 ### Seleccionamos las muestras de MBP y PLP1 de los sujetos sin AD ni TBI
 Son 27 sin AD ni TBI,
@@ -233,7 +241,6 @@ no será necesario hacer un submuestreo aleatorio.
   
 ## Data frames que contengan ambos grupos
   
-  
 ### Creamos un data frame uniendo las filas de nuestros dos grupos
 ```{r}
 Ambos_grupos <- rbind(grupo_AD, grupo_control)
@@ -264,7 +271,7 @@ que tendrá el análisis. Ya que buscamos una diferencia en la cola inferior,
 pues esperamos que estén más bajos los niveles del grupo AD con respecto
 al control, el tamaño del efecto (la *d* de Cohen) lo debemos poner negativo.
 
-Cabe recordar que el nivel de significancia, alfa, es la probabilidad de
+Cabe recordar que el nivel de significación, alfa, es la probabilidad de
 cometer un error de tipo I: rechazar la hipótesis nula
 cuando es verdadera (falso positivo). Y el poder estadístico, 1-beta, es
 la probabilidad de **no** cometer un error de tipo II:
@@ -327,7 +334,7 @@ car::qqPlot(grupo_control$value.MBP)
 car::qqPlot(grupo_control$value.PLP1)
 ```
 En el eje de las abscisas están los cuantiles teóricos de la distribución normal,
-en el eje de las ordenadas está la dispersión real de la muestra. 
+en el eje de las ordenadas están los cuantiles reales de la muestra. 
   
   
 #### Comprobación de homocedasticidad
@@ -335,27 +342,27 @@ Hacemos un test de Bartlett para corroborar homogeneidad de varianza.
 ```{r}
 bartlett.test(list(grupo_AD$value.MBP,grupo_control$value.MBP))
 ```
-El test no encontró diferencias significativas en las varianzas de MBP
+El test no encontró diferencia en las varianzas de MBP
 en los dos grupos (p>alfa).
   
   
 ```{r}
 bartlett.test(list(grupo_AD$value.PLP1,grupo_control$value.PLP1))
 ```
-El test si encontró diferencias significativas en las varianzas de PLP1
+El test **sí encontró diferencia en las varianzas de PLP1**
 en los 2 grupos (p<alfa)
 ---
   
   
-## Análisis estadístico de los datos
+## Análisis estadístico de los datos  
 
 ### Calculo de las medidas de tendencia central y la desviación estándar
 
 Para MBP:
 ```{r}
 Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
-  MBP_media=mean(value.MBP), MBP_mediana=median(value.MBP),
-  MBP_desviacion_estandar=sd(value.MBP),
+  MBP_media = mean(value.MBP), MBP_mediana = median(value.MBP),
+  MBP_desviacion_estandar = sd(value.MBP),
   MBP_coef_variacion = sd(value.MBP)/mean(value.MBP))
 ```
   
@@ -363,62 +370,103 @@ Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
 Para PLP1:
 ```{r}
 Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
-  PLP1_media = mean(value.PLP1), PLP_mediana=median(value.PLP1),
+  PLP1_media = mean(value.PLP1), PLP_mediana = median(value.PLP1),
   PLP1_desviacion_estandar = sd(value.PLP1),
   PLP1_coef_variacion = sd(value.PLP1)/mean(value.PLP1))
 ```
   
   
-### Pruebas t para comparar 2 grupos independientes
+### Intervalos de confianza y pruebas t 
+
+#### Intervalos de confianza unilaterales para la media:
+```{r}
+t.test(grupo_AD$value.MBP, alternative = "less")$conf.int
+
+t.test(grupo_control$value.MBP, alternative = "less")$conf.int
+
+t.test(grupo_AD$value.PLP1, alternative = "less")$conf.int
+
+t.test(grupo_control$value.PLP1, alternative = "less")$conf.int
+```
+Con los intervalos de confianza unilaterales
+podemos concluir con un nivel de confianza del 95% que:
+
+Los valores promedio de MBP para el grupo con AD
+son menores a 2545.482 FPKM.
+Los valores promedio de MBP para el grupo control
+son menores a 4038.157 FPKM.
+
+Los valores promedio de PLP1 para el grupo con AD
+son menores a 1605.984 FPKM.
+Los valores promedio de PLP1 para el grupo control
+son menores a 2257.039 FPKM.  
+  
+#### Pruebas t para comparar las medias de 2 grupos independientes
 Para MBP basta usar una prueba t de student 
 porque los supuestos de normalidad y homocedasticidad ya fueron comprobados.
 ```{r}
 t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
-       var.equal = TRUE, alternative="less")
+       var.equal = TRUE, alternative = "less")
 ```
-**Hay diferencia** (*p-value = 0.02246).
-Diferencia media = 2047.141 - 3202.342 = -1155.201
-Es negativo porque hay menos MBP en grupo con AD que en grupo control
+**Hay diferencia en MBP**, p < alfa (*p-value = 0.02246).
+Diferencia de las medias = 2047.141 - 3202.342 = -1155.201
+Es negativa porque es menor la media del grupo con AD.
+Podemos concluir con un nivel de confianza del 95% que:
+los FPKM promedio de MBP del grupo con AD **son inferiores**
+a los FPKM promedio de MBP del grupo control,
+ya que el intervalo de confianza no incluye el cero
+y el límite resultó negativo.
+(La expresión media de MBP del grupo con AD
+es menor que la expresión media de MBP del grupo control)
   
   
-#### Comprobación de la diferencia en MBP con prueba t para varianzas desiguales
+##### Comprobación de la diferencia en MBP con prueba t para varianzas desiguales
 ```{r}
 t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
-       var.equal = FALSE, alternative="less")
+       var.equal = FALSE, alternative = "less")
 ```
-*p-value = 0.02369
+*p-value = 0.02369. Sí hay diferencia en MBP.
   
   
-### Prueba t de Welch para PLP1
+#### Prueba t de Welch para PLP1
 Para PLP1 se necesita una prueba t adaptada a varianzas desiguales
 ya que las muestras son heterocedásticas,
 por lo que usaremos una prueba t de Welch.
 La misma con la que comprobamos la diferencia de MBP.
 ```{r}
 t.test(value.PLP1 ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
-       var.equal = FALSE, alternative="less")
+       var.equal = FALSE, alternative = "less")
 ```
-p>0.05 sin diferencia. (p-value = 0.171)
+Sin diferencia en PLP1, p > alfa (p-value = 0.171).
+Podemos concluir con un nivel de confianza del 95% que:
+los FPKM promedio de PLP1 del grupo con AD no son inferiores
+a los FPKM promedio de PLP1 del grupo control,
+ya que el límite del intervalo de confianza resultó positivo.
+(La expresión media de PLP1 del grupo con AD no
+es menor que la expresión media de MBP del grupo control) 
 ---
   
   
-## Gráficos de los resultados:
+## Gráficos de los resultados:  
+
 ### Gráfico de barras
-Hacemos un gráfico de barras de los niveles promedio,
+Haremos un gráfico de barras de los niveles promedio,
 con líneas de error estándar con mínimo en
 la media menos el error estándar y máximo en la media más el error estándar.
 El asterisco indica que hubo diferencia.
+Ya que no calculamos el error estándar (se) antes, lo agregaremos ahora con *mutate*.
 ```{r}
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
-  mutate(se = sd(value) / sqrt(length(value)), mean_value=mean(value)) %>%
-      ggplot(aes(gene_symbol,mean_value,fill=dsm_iv_clinical_diagnosis)) +
+  mutate(se = sd(value) / sqrt(length(value)), mean_value = mean(value)) %>%
+      ggplot(aes(gene_symbol,mean_value,fill = dsm_iv_clinical_diagnosis)) +
       geom_bar(stat = 'identity', color="black", position = 'dodge') +
-      ggsignif::geom_signif(y_position=c(4100), xmin=c(0.8), xmax=c(1.2),
-                            annotation=c("*"), tip_length=0.03) + 
-      scale_fill_manual(values=c("#d8b365", "#5ab4ac"))+
-      geom_errorbar(aes(ymin=mean_value-se, ymax=mean_value+se), 
+      ggsignif::geom_signif(y_position = c(4100), xmin = c(0.8), xmax = c(1.2),
+                            annotation = c("*"), tip_length = 0.03) + 
+      scale_fill_manual(values = c("#d8b365", "#5ab4ac"))+
+      geom_errorbar(aes(ymin = mean_value - se, ymax = mean_value + se), 
                 position = "dodge") +
-      labs(x="Gen",y="ARN normalizado (FPKM)", fill="Diagnóstico DSM-IV") +
+      labs(x = "Gen", y = "ARN normalizado (FPKM)",
+           fill = "Diagnóstico DSM-IV") +
       ggtitle("Niveles promedio de ARN en sustancia blanca 
           de lóbulo parietal derecho") +
       ylim(0,4500)
@@ -427,17 +475,17 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   
 ### Gráfico de cajas y bigotes
 Hacemos un gráfico de cajas y bigotes
-con asterisco indicando en cuál variable se
-encuentra la diferencia (no confundir con el punto del valor atípico).
+con asterisco indicando en cuál variable se encuentra
+la diferencia (no confundir con el punto del valor atípico).
 ```{r}
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
-  ggplot(aes(gene_symbol,value,fill=dsm_iv_clinical_diagnosis)) +
+  ggplot(aes(gene_symbol,value,fill = dsm_iv_clinical_diagnosis)) +
   geom_boxplot() +
-  ggsignif::geom_signif(y_position=c(7000),
-                        xmin=c(0.8), xmax=c(1.2),
-                        annotation=c("*"), tip_length=0.03)+
+  ggsignif::geom_signif(y_position = c(7000),
+                        xmin = c(0.8), xmax = c(1.2),
+                        annotation = c("*"), tip_length = 0.03)+
   scale_fill_manual(values = c("#d8b365", "#5ab4ac")) +
-  labs(x="Gen",y="ARN normalizado (FPKM)", fill="Diagnóstico DSM-IV") +
+  labs(x = "Gen",y = "ARN normalizado (FPKM)", fill = "Diagnóstico DSM-IV") +
   ggtitle("Niveles de ARN en sustancia blanca de lóbulo parietal derecho") +
   ylim(0,7500)
 ```
