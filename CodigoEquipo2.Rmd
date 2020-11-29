@@ -356,7 +356,7 @@ en los 2 grupos (p<alfa)
   
 ## Análisis estadístico de los datos  
 
-### Cálculo de las medidas de tendencia central y la desviación estándar
+### Cálculo de las medidas de tendencia central y medidas de dispersión
 
 Para MBP:
 ```{r}
