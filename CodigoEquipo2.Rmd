@@ -285,7 +285,7 @@ Poder = 0.6318458
 Nivel de confianza = (1-alfa)*100 = 95%
   
   
-### Calculo de la n ideal
+### Cálculo de la n ideal
 ```{r}
 pwr::pwr.t.test(n = NULL, 
                 d = -0.8, sig.level = 0.05, type = "two.sample", 
@@ -356,7 +356,7 @@ en los 2 grupos (p<alfa)
   
 ## Análisis estadístico de los datos  
 
-### Calculo de las medidas de tendencia central y la desviación estándar
+### Cálculo de las medidas de tendencia central y la desviación estándar
 
 Para MBP:
 ```{r}
