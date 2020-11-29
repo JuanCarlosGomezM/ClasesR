@@ -299,10 +299,10 @@ En rojo está la densidad de los valores de ARN del grupo con AD
 y en verde la densidad de los valores de ARN del grupo control.
 ```{r}
 sm::sm.density.compare(Ambos_grupos$value.MBP, as.factor(
-  Ambos_grupos$dsm_iv_clinical_diagnosis), xlab="MBP")
+  Ambos_grupos$dsm_iv_clinical_diagnosis), xlab = "MBP")
 
 sm::sm.density.compare(Ambos_grupos$value.PLP1, as.factor(
-  Ambos_grupos$dsm_iv_clinical_diagnosis), xlab="PLP1")
+  Ambos_grupos$dsm_iv_clinical_diagnosis), xlab = "PLP1")
 ```
   
   
@@ -459,7 +459,7 @@ Ya que no calculamos el error estándar (se) antes, lo agregaremos ahora con *mu
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   mutate(se = sd(value) / sqrt(length(value)), mean_value = mean(value)) %>%
       ggplot(aes(gene_symbol,mean_value,fill = dsm_iv_clinical_diagnosis)) +
-      geom_bar(stat = 'identity', color="black", position = 'dodge') +
+      geom_bar(stat = 'identity', color = "black", position = 'dodge') +
       ggsignif::geom_signif(y_position = c(4100), xmin = c(0.8), xmax = c(1.2),
                             annotation = c("*"), tip_length = 0.03) + 
       scale_fill_manual(values = c("#d8b365", "#5ab4ac"))+
