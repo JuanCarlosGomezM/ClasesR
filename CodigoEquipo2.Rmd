@@ -127,7 +127,7 @@ MBP_PLP1_FWM <- rna.measure.genes[(gene_symbol == "MBP" &
 ```
   
   
-#### Seleccionamos las muestras de MBP y PLP1 de los sujetos con AD
+#### Seleccionamos las muestras de MBP y PLP1 de los sujetos con AD sin TBI
 Son 16 sujetos con AD sin TBI, pero se eliminó uno que no tiene los valores
 para ninguno de los genes de nuestro interés
 y se eliminaron 2 cuya información es del hemisferio izquierdo, quedando 13.
@@ -356,7 +356,7 @@ en los 2 grupos (p<alfa)
   
 ## Análisis estadístico de los datos  
 
-### Cálculo de las medidas de tendencia central y medidas de dispersión
+### Cálculo de medidas de tendencia central y medidas de dispersión
 
 Para MBP:
 ```{r}
@@ -440,8 +440,7 @@ t.test(value.PLP1 ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
 Sin diferencia en PLP1, p > alfa (p-value = 0.171).
 Podemos concluir con un nivel de confianza del 95% que:
 los FPKM promedio de PLP1 del grupo con AD no son inferiores
-a los FPKM promedio de PLP1 del grupo control,
-ya que el límite del intervalo de confianza resultó positivo.
+a los FPKM promedio de PLP1 del grupo control.
 (La expresión media de PLP1 del grupo con AD no
 es menor que la expresión media de MBP del grupo control) 
 ---
