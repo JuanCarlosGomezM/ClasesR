@@ -48,7 +48,7 @@ principal.cell.diff %>% group_by(species) %>%
 
 
 
-Diferencias en las características de las células principales de rata, pez cebra y tortuga
+Diferencias en las características de las células principales de rata, pez cebra y tortuga (no hay "principal cell" así nada más en tortuga, así que elegí aquella de la que tuviera más datos)
 ```{r}
 principal.cell.diff$volume<-as.numeric(as.character(principal.cell.diff$volume))
 principal.cell.diff$surface<-as.numeric(as.character(principal.cell.diff$surface))
@@ -82,11 +82,11 @@ lapply(cell.type,medidas)
 
 
 
-Características de los dominios de las células principales según su región cerebral en rata
+Diferencias en los axones según el tipo de célula en rata
 ```{r}
 cell.type.diff$volume<-as.numeric(as.character(cell.type.diff$volume))
 cell.type.diff$surface<-as.numeric(as.character(cell.type.diff$surface))
-cell.type.diff %>% group_by(brain_region, domain) %>% filter(cell_type== "principal cell") %>% 
+cell.type.diff %>% group_by(cell_type) %>% filter(domain== "No Dendrites, No Soma, Axon") %>% 
   summarize(mean_volume=mean(volume), mean_surface=mean(surface))
 ```
 
