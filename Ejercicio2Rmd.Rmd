@@ -1,0 +1,98 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(NeurocienciasIntroData)
+library(dplyr)
+
+```
+
+Para principal.cell.diff
+```{r}
+names(principal.cell.diff)
+str(principal.cell.diff)
+unique(principal.cell.diff$species)
+```
+3 especies: rata, pez cebra, tortuga
+
+
+Convertir a numéricos
+```{r}
+convertir<-function(x){c(as.numeric(as.character(x)))}
+
+princip_cell<- dplyr::select(principal.cell.diff,5,6,7,10,11)
+princip_cell<-lapply(princip_cell,convertir)
+```
+
+
+Medidas Descriptivas
+```{r}
+medidas<-function(x){c(media=mean(x,na.rm = T), mediana=median(x,na.rm = T),
+                        varianza=var(x,na.rm = T),desviacion_e=sd(x,na.rm = T))}
+lapply(princip_cell,medidas)
+```
+
+Células de las que se tienen más datos
+```{r}
+principal.cell.diff$volume<-as.numeric(as.character(principal.cell.diff$volume))
+principal.cell.diff$surface<-as.numeric(as.character(principal.cell.diff$surface))
+principal.cell.diff %>% group_by(species) %>%
+  summarize(mas_datos=names(which.max(table(cell_type))))
+```
+
+
+
+Diferencias en las características de las células principales de rata, pez cebra y tortuga
+```{r}
+principal.cell.diff$volume<-as.numeric(as.character(principal.cell.diff$volume))
+principal.cell.diff$surface<-as.numeric(as.character(principal.cell.diff$surface))
+principal.cell.diff %>% group_by(species) %>% filter(cell_type=="principal cell"|cell_type=="principal cell/pyramidal/Excitatory") %>%
+  summarize(max_volume=max(volume), max_surface=max(surface))
+```
+
+
+
+
+
+Para cell.type.diff
+```{r}
+names(cell.type.diff)
+str(cell.type.diff)
+```
+En cell.type.diff sólo hay una especie: rata
+
+
+
+Convertir a numérico
+```{r}
+cell.type<- dplyr::select(principal.cell.diff,5,6,7,10,11)
+cell.type<-lapply(cell.type,convertir)
+```
+
+Medidas Descriptivas
+```{r}
+lapply(cell.type,medidas)
+```
+
+
+
+Características de los dominios de las células principales según su región cerebral en rata
+```{r}
+cell.type.diff$volume<-as.numeric(as.character(cell.type.diff$volume))
+cell.type.diff$surface<-as.numeric(as.character(cell.type.diff$surface))
+cell.type.diff %>% group_by(brain_region, domain) %>% filter(cell_type== "principal cell") %>% 
+  summarize(mean_volume=mean(volume), mean_surface=mean(surface))
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
