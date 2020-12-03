@@ -48,9 +48,7 @@ principal.cell.diff %>% group_by(species) %>%
 
 
 
-Diferencias en las características de las células principales de rata,
-pez cebra y tortuga (no hay "principal cell" así nada más en tortuga,
-así que elegí aquella de la que tuviera más datos)
+Diferencias en las características de las células principales de rata, pez cebra y tortuga (no hay "principal cell" así nada más en tortuga, así que elegí aquella de la que tuviera más datos)
 ```{r}
 principal.cell.diff$volume<-as.numeric(as.character(principal.cell.diff$volume))
 principal.cell.diff$surface<-as.numeric(as.character(principal.cell.diff$surface))
