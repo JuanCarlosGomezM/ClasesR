@@ -10,7 +10,7 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 ```{r}
 library(NeurocienciasIntroData)
 library(dplyr)
-
+library(ggplot2)
 ```
 
 Para principal.cell.diff
@@ -38,25 +38,99 @@ medidas<-function(x){c(media=mean(x,na.rm = T), mediana=median(x,na.rm = T),
 lapply(princip_cell,medidas)
 ```
 
-Células de las que se tienen más datos
+Células y dominios de los que se tienen más datos
 ```{r}
-principal.cell.diff$volume<-as.numeric(as.character(principal.cell.diff$volume))
-principal.cell.diff$surface<-as.numeric(as.character(principal.cell.diff$surface))
-principal.cell.diff %>% group_by(species) %>%
-  summarize(mas_datos=names(which.max(table(cell_type))))
+principal.cell.diff2<-principal.cell.diff
+principal.cell.diff2 %>% group_by(species) %>%
+  summarize(mas_cell=names(which.max(table(cell_type))), mas_dominio=names(which.max(table(domain))))
 ```
 
 
 
-Diferencias en las características de las células principales de rata,
-pez cebra y tortuga (no hay "principal cell" así nada más en tortuga,
-así que elegí aquella de la que tuviera más datos)
+Diferencias en la superficie de las células principales de rata y pez cebra
 ```{r}
-principal.cell.diff$volume<-as.numeric(as.character(principal.cell.diff$volume))
-principal.cell.diff$surface<-as.numeric(as.character(principal.cell.diff$surface))
-principal.cell.diff %>% group_by(species) %>% filter(cell_type=="principal cell"|cell_type=="principal cell/pyramidal/Excitatory") %>%
-  summarize(max_volume=max(volume), max_surface=max(surface))
+principal.cell.diff2$surface<-as.numeric(as.character(principal.cell.diff2$surface))
+
+principal.cell.diff2 %>% group_by(species) %>% 
+  filter(cell_type=="principal cell" & domain=="Neurites, Soma") %>% tidyr::drop_na() %>%
+  summarize(mean_surface=mean(surface), max_surface=max(surface), min_surface=min(surface), sd=sd(surface))
+
+con_outliers<-principal.cell.diff2 %>% group_by(species) %>% 
+  filter(cell_type=="principal cell" & domain=="Neurites, Soma") %>% tidyr::drop_na()
 ```
+
+
+```{r}
+con_outliers %>% ggplot(aes(species,surface)) + geom_boxplot() + scale_y_log10() + geom_jitter(alpha=0.1)
+```
+```{r}
+con_outliers %>% ggplot(aes(surface)) + geom_histogram() + facet_wrap(~ species, scales = "free") +
+  scale_x_log10()
+```
+
+Quitar outliers
+```{r}
+con_outliers_rata<-principal.cell.diff2 %>% group_by(species) %>%
+  filter(cell_type=="principal cell" & domain=="Neurites, Soma" & species=="rat") %>%
+  tidyr::drop_na()
+
+con_outliers_pez<-principal.cell.diff2 %>% group_by(species) %>%
+  filter(cell_type=="principal cell" & domain=="Neurites, Soma" & species=="zebrafish") %>%
+  tidyr::drop_na()
+
+sin_outliers_rata <- con_outliers_rata[con_outliers_rata$surface > quantile(con_outliers_rata$surface, .25) - 1.5*IQR(con_outliers_rata$surface) & con_outliers_rata$surface < quantile(con_outliers_rata$surface, .75) + 1.5*IQR(con_outliers_rata$surface), ]
+
+sin_outliers_pez <- con_outliers_pez[con_outliers_pez$surface > quantile(con_outliers_pez$surface, .25) - 1.5*IQR(con_outliers_pez$surface) & con_outliers_pez$surface < quantile(con_outliers_pez$surface, .75) + 1.5*IQR(con_outliers_pez$surface), ]
+
+
+sin_outliers <- data.frame(cbind(superf_rata=sin_outliers_rata$surface,superf_pez=sin_outliers_pez$surface))
+```
+
+Medidas para rata sin outliers
+```{r}
+sin_outliers %>% tidyr::drop_na() %>%
+  summarize(mean_surface=mean(superf_rata), max_surface=max(superf_rata), min_surface=min(superf_rata), sd=sd(superf_rata))
+```
+
+
+Medidas para pez cebra sin outliers
+```{r}
+sin_outliers %>% tidyr::drop_na() %>%
+  summarize(mean_surface=mean(superf_pez), max_surface=max(superf_pez), min_surface=min(superf_pez), sd=sd(superf_pez))
+```
+
+
+
+
+```{r}
+sin_outliers %>% tidyr::gather() %>% ggplot(aes(key,value)) + geom_boxplot() + scale_y_log10() + geom_jitter(alpha=0.1)
+```
+```{r}
+sin_outliers %>% tidyr::gather() %>% ggplot(aes(value)) + facet_wrap(~ key, scales = "free") + geom_histogram() +
+  scale_x_log10()
+```
+
+```{r}
+shapiro.test(sin_outliers$superf_rata)
+shapiro.test(sin_outliers$superf_pez)
+```
+qqplot rata
+```{r}
+qqnorm(sin_outliers$superf_rata)
+qqline(sin_outliers$superf_rata, col="red", lw=2)
+```
+
+
+
+qqplot pez
+```{r}
+qqnorm(sin_outliers$superf_pez)
+qqline(sin_outliers$superf_pez, col="red", lw=2)
+```
+
+
+
+
 
 
 
@@ -84,12 +158,12 @@ lapply(cell.type,medidas)
 
 
 
-Diferencias en los axones según el tipo de célula en rata
+Diferencias en la superficie de los axones según el tipo de célula en rata
 ```{r}
-cell.type.diff$volume<-as.numeric(as.character(cell.type.diff$volume))
-cell.type.diff$surface<-as.numeric(as.character(cell.type.diff$surface))
-cell.type.diff %>% group_by(cell_type) %>% filter(domain== "No Dendrites, No Soma, Axon") %>% 
-  summarize(mean_volume=mean(volume), mean_surface=mean(surface))
+cell.type.diff2<-cell.type.diff
+cell.type.diff2$surface<-as.numeric(as.character(cell.type.diff2$surface))
+cell.type.diff2 %>% group_by(cell_type) %>% filter(domain== "No Dendrites, No Soma, Axon") %>% 
+  summarize(mean_surface=mean(surface))
 ```
 
 
