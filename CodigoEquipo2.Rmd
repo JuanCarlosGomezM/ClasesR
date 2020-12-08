@@ -378,28 +378,28 @@ Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
   
 ### Intervalos de confianza y pruebas t 
 
-#### Intervalos de confianza unilaterales para la media:
+#### Intervalos de confianza para la media:
 ```{r}
-t.test(grupo_AD$value.MBP, alternative = "less")$conf.int
+t.test(grupo_AD$value.MBP)$conf.int
 
-t.test(grupo_control$value.MBP, alternative = "less")$conf.int
+t.test(grupo_control$value.MBP)$conf.int
 
-t.test(grupo_AD$value.PLP1, alternative = "less")$conf.int
+t.test(grupo_AD$value.PLP1)$conf.int
 
-t.test(grupo_control$value.PLP1, alternative = "less")$conf.int
+t.test(grupo_control$value.PLP1)$conf.int
 ```
-Con los intervalos de confianza unilaterales
-podemos concluir con un nivel de confianza del 95% que:
+Con los intervalos de confianza bilaterales
+podemos estimar que en un 95% de muestras:
 
-Los valores promedio de MBP para el grupo con AD
-son menores a 2545.482 FPKM.
-Los valores promedio de MBP para el grupo control
-son menores a 4038.157 FPKM.
+Los valores promedio de MBP para las muestras con AD
+estarán entre 1437.928 y 2656.354 FPKM.
+Los valores promedio de MBP para las muestras sin AD
+estarán entre 2180.574 y 4224.110 FPKM.
 
-Los valores promedio de PLP1 para el grupo con AD
-son menores a 1605.984 FPKM.
-Los valores promedio de PLP1 para el grupo control
-son menores a 2257.039 FPKM.  
+Los valores promedio de PLP1 para las muestras con AD
+estarán entre 1074.275 y 1659.211 FPKM.
+Los valores promedio de PLP1 para las muestras sin AD
+estarán entre 1018.609 y 2381.012 FPKM.
   
 #### Pruebas t para comparar las medias de 2 grupos independientes
 Para MBP basta usar una prueba t de student 
