@@ -146,22 +146,28 @@ shapiro.test(sin_outliers$superf_pez)
 ```
 
 
-qqplot rata
+qqplot normal rata
 ```{r}
-qqnorm(sin_outliers$superf_rata)
-qqline(sin_outliers$superf_rata, col="red", lw=2)
+qualityTools::qqPlot(sin_outliers$superf_rata, "normal")
 ```
 
 
 
-qqplot pez
+qqplot normal pez
 ```{r}
-qqnorm(sin_outliers$superf_pez)
-qqline(sin_outliers$superf_pez, col="red", lw=2)
+qualityTools::qqPlot(sin_outliers$superf_pez, "normal")
 ```
 
 
+Q-Q plot de distribución cauchy, rata
+```{r}
+qualityTools::qqPlot(sin_outliers$superf_rata, "cauchy")
+```
 
+Q-Q plot de distribución cauchy, pez
+```{r}
+qualityTools::qqPlot(sin_outliers$superf_pez, "cauchy")
+```
 
 
 
