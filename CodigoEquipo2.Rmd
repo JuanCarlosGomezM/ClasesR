@@ -468,7 +468,8 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
            fill = "Diagnóstico DSM-IV") +
       ggtitle("Niveles promedio de ARN en sustancia blanca 
           de lóbulo parietal derecho") +
-      ylim(0,4500)
+      ylim(0,4500) +
+      hrbrthemes::theme_ipsum_rc()
 ```
   
   
@@ -486,6 +487,7 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   scale_fill_manual(values = c("#d8b365", "#5ab4ac")) +
   labs(x = "Gen",y = "ARN normalizado (FPKM)", fill = "Diagnóstico DSM-IV") +
   ggtitle("Niveles de ARN en sustancia blanca de lóbulo parietal derecho") +
-  ylim(0,7500)
+  ylim(0,7500) +
+  hrbrthemes::theme_ipsum_rc()
 ```
 
