@@ -36,6 +36,7 @@ neo<-lapply(neo,convertir)
 
 Aplicar estadística descriptiva:
 ```{r}
+options(scipen=1000000)
 medidas<-function(x){c(media=mean(x,na.rm = T), mediana=median(x,na.rm = T),
                         desviacion_e=sd(x,na.rm = T))}
 lapply(neo,medidas)
