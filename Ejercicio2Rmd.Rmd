@@ -33,6 +33,7 @@ princip_cell<-lapply(princip_cell,convertir)
 
 Medidas Descriptivas
 ```{r}
+options(scipen=1000000)
 medidas<-function(x){c(media=mean(x,na.rm = T), mediana=median(x,na.rm = T),
                         varianza=var(x,na.rm = T),desviacion_e=sd(x,na.rm = T))}
 lapply(princip_cell,medidas)
@@ -130,6 +131,7 @@ sin_outliers %>% tidyr::gather() %>% ggplot(aes(key,value)) +
   scale_y_log10() +
   geom_jitter(alpha=0.1)
 ```
+
 ```{r}
 sin_outliers %>% tidyr::gather() %>% ggplot(aes(value)) +
   facet_wrap(~ key, scales = "free") + geom_histogram() +
@@ -146,32 +148,33 @@ shapiro.test(sin_outliers$superf_pez)
 ```
 
 
-qqplot normal rata
+qqplots rata
 ```{r}
 qualityTools::qqPlot(sin_outliers$superf_rata, "normal")
-```
-
-
-
-qqplot normal pez
-```{r}
-qualityTools::qqPlot(sin_outliers$superf_pez, "normal")
-```
-
-
-Q-Q plot de distribución cauchy, rata
-```{r}
 qualityTools::qqPlot(sin_outliers$superf_rata, "cauchy")
 ```
 
-Q-Q plot de distribución cauchy, pez
+
+
+qqplots pez
 ```{r}
+qualityTools::qqPlot(sin_outliers$superf_pez, "normal")
 qualityTools::qqPlot(sin_outliers$superf_pez, "cauchy")
 ```
 
 
+Descripción de distribución, rata
+```{r}
+fitdistrplus::descdist(sin_outliers$superf_rata, boot = 1000)
+```
+La distribución de la superficie de las células principales de rata es beta
 
 
+Descripción de la distribución, pez
+```{r}
+fitdistrplus::descdist(sin_outliers$superf_pez, boot = 1000)
+```
+La distribución de la superficie de las células principales de pez es beta
 
 
 Para cell.type.diff
