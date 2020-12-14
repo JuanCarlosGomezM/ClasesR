@@ -337,6 +337,18 @@ En el eje de las abscisas están los cuantiles teóricos de la distribución nor
 en el eje de las ordenadas están los cuantiles reales de la muestra. 
   
   
+Gráficos describiendo distribución de los grupos en muestreos repetidos
+```{r}
+fitdistrplus::descdist(grupo_AD$value.MBP, boot = 1000)
+
+fitdistrplus::descdist(grupo_AD$value.PLP1, boot = 1000)
+
+fitdistrplus::descdist(grupo_control$value.MBP, boot = 1000)
+
+fitdistrplus::descdist(grupo_control$value.PLP1, boot = 1000)
+```
+  
+  
 #### Comprobación de homocedasticidad
 Hacemos un test de Bartlett para corroborar homogeneidad de varianza.
 ```{r}
@@ -365,6 +377,7 @@ Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
   MBP_desviacion_estandar = sd(value.MBP),
   MBP_coef_variacion = sd(value.MBP)/mean(value.MBP))
 ```
+Coeficientes de variación similares
   
   
 Para PLP1:
@@ -374,6 +387,7 @@ Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
   PLP1_desviacion_estandar = sd(value.PLP1),
   PLP1_coef_variacion = sd(value.PLP1)/mean(value.PLP1))
 ```
+Coeficientes de variación no similares
   
   
 ### Intervalos de confianza y pruebas t 
@@ -468,8 +482,7 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
            fill = "Diagnóstico DSM-IV") +
       ggtitle("Niveles promedio de ARN en sustancia blanca 
           de lóbulo parietal derecho") +
-      ylim(0,4500) +
-      hrbrthemes::theme_ipsum_rc()
+      ylim(0,4500)
 ```
   
   
@@ -487,7 +500,6 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   scale_fill_manual(values = c("#d8b365", "#5ab4ac")) +
   labs(x = "Gen",y = "ARN normalizado (FPKM)", fill = "Diagnóstico DSM-IV") +
   ggtitle("Niveles de ARN en sustancia blanca de lóbulo parietal derecho") +
-  ylim(0,7500) +
-  hrbrthemes::theme_ipsum_rc()
+  ylim(0,7500)
 ```
 
