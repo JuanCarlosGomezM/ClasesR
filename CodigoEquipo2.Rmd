@@ -15,6 +15,7 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 ```
+
 ---
   
   
@@ -41,13 +42,16 @@ Si limpiamos nuestro ambiente podemos simplemente leer este archivo de nuevo.
 ```{r eval=FALSE}
 fwrite(normalized.rna.measures, "rna_data.csv", row.names = F)
 ```
-  
+
+---
+
   
 ### Para leer el archivo rna_data.csv:
 En ventana emergente se debe buscar el archivo *rna_data.csv*.
 ```{r}
 normalized.rna.measures <- fread(choose.files())
 ```
+
 ---
   
   
@@ -104,6 +108,7 @@ rna.measure.genes <- merge(
     dsm_iv_clinical_diagnosis )], rna.measure.genes,
   by = "donor_id")
 ```
+
 ---
   
   
@@ -240,6 +245,7 @@ count(grupo_control)
 ```
 Nuestro grupo control tiene mismo número que el grupo AD, por lo que
 no será necesario hacer un submuestreo aleatorio.
+
 ---
   
   
@@ -268,6 +274,7 @@ Todos
 Resultado: 52 filas:
 13 de MBP con AD, 13 de PLP1 con AD, 13 de MBP sin AD y 13 de PLP1 sin AD.
 Los valores de MBP y PLP1 se encuentran en la misma columna.
+
 ---
   
   
@@ -301,6 +308,7 @@ pwr::pwr.t.test(n = NULL,
 ```
 n = 20.03277
   
+---  
   
 ### Gráficos de densidad para observar distribuciones
 En rojo está la densidad de los valores de ARN del grupo con AD
@@ -315,6 +323,7 @@ sm::sm.density.compare(Ambos_grupos$value.PLP1, as.factor(
   xlab = "PLP1", ylab = "Densidad")
 ```
   
+---  
   
 ### Comprobación de normalidad
 Hacemos un test de Shapiro-Wilk para corroborar que las muestras se ajusten a
@@ -331,6 +340,7 @@ shapiro.test(grupo_control$value.PLP1)
 Podemos ver que todas tiene una p mayor a alfa, por lo que no se rechaza
 la hipótesis nula de que las muestras provienen de una distribución normal
   
+---  
   
 ### Q-Q plots
 Gráfico cuantil-cuantil para observar dispersiones en las distribuciones
@@ -351,7 +361,8 @@ En el eje de las abscisas están los cuantiles teóricos de la distribución nor
 en el eje de las ordenadas están los cuantiles empíricos de las muestras.
 Podemos observar gran dispersión en la muestra de PLP1 del grupo con AD.  
 
-  
+---  
+
 Gráficos describiendo distribución de los grupos en muestreos repetidos
 ```{r}
 fitdistrplus::descdist(grupo_AD$value.MBP, boot = 1000)
@@ -365,8 +376,9 @@ fitdistrplus::descdist(grupo_control$value.PLP1, boot = 1000)
 Podemos observar que sí es una limitación la reducida n, por lo que debemos ser
 cautelosos con las conclusiones que obtengamos de los análisis de estos datos.
   
+---  
   
-#### Comprobación de homocedasticidad
+### Comprobación de homocedasticidad
 Hacemos un test de Bartlett para corroborar homogeneidad de varianza.
 ```{r}
 bartlett.test(list(grupo_AD$value.MBP, grupo_control$value.MBP))
@@ -380,6 +392,7 @@ bartlett.test(list(grupo_AD$value.PLP1, grupo_control$value.PLP1))
 ```
 El test **sí encontró diferencia en las varianzas de PLP1**
 en los 2 grupos (p<alfa)
+
 ---
   
   
@@ -454,6 +467,8 @@ Según el intervalo bilateral, el valor promedio de PLP1 para la población sin 
 está entre 1018.609 y 2381.012 FPKM. El intervalo unilateral indica que
 la media es menor a 2257.039 FPKM.
   
+---  
+  
 ### Pruebas t para comparar las medias de 2 grupos independientes
 Para MBP basta usar una prueba t de student 
 porque los supuestos de normalidad y homocedasticidad ya fueron comprobados.
@@ -496,6 +511,7 @@ los FPKM promedio de PLP1 del grupo con AD **no** son inferiores
 a los FPKM promedio de PLP1 del grupo control.
 (La expresión media de PLP1 del grupo con AD no
 es menor que la expresión media de MBP del grupo control) 
+
 ---
   
   
@@ -524,6 +540,7 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
       ylim(0,4500)
 ```
   
+---  
   
 ### Gráfico de cajas y bigotes
 Hacemos un gráfico de cajas y bigotes
