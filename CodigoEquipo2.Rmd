@@ -535,8 +535,7 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
                 position = "dodge") +
       labs(x = "Gen", y = "ARN normalizado (FPKM)",
            fill = "Diagnóstico DSM-IV") +
-      ggtitle("Niveles promedio de ARN en sustancia blanca 
-          de lóbulo parietal derecho") +
+      ggtitle("Niveles promedio de ARN en sustancia blanca de lóbulo parietal derecho") +
       ylim(0,4500)
 ```
   
