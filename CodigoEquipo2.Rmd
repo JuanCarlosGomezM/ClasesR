@@ -43,7 +43,7 @@ fwrite(normalized.rna.measures, "rna_data.csv", row.names = F)
 ```
   
   
-#### Para leer el archivo rna_data.csv:
+### Para leer el archivo rna_data.csv:
 En ventana emergente se debe buscar el archivo *rna_data.csv*.
 ```{r}
 normalized.rna.measures <- fread(choose.files())
