@@ -168,6 +168,7 @@ grupo_AD <- grupo_AD[, .(donor_id,dsm_iv_clinical_diagnosis,
 count(grupo_AD)
 ```
 Resultado: grupo_AD: 13 sujetos con AD sin TBI, unidos por el *donor_id*
+
 ---
   
   
