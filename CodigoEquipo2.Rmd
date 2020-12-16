@@ -261,7 +261,7 @@ Resultado: 26 filas, 13 del grupo AD y 13 del grupo control,
 los valores de MBP y PLP1 están en columnas separadas
   
   
-### Crearemos un data frame filtrando toda la información inicial directamente
+### Crearemos un dataframe filtrando toda la información inicial directamente
 Esto le da una estructura diferente al data frame y nos facilitará
 ocuparlo para graficar los resultados más adelante.
 ```{r}
