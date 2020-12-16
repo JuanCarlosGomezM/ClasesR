@@ -36,14 +36,14 @@ normalized.rna.measures <- melt(normalized.rna.measures, id.vars = "gene_id",
 ```
   
   
-#### Creamos un archivo csv llamado *rna_data.csv*
+### Creamos un archivo csv llamado *rna_data.csv*
 Si limpiamos nuestro ambiente podemos simplemente leer este archivo de nuevo.
 ```{r eval=FALSE}
 fwrite(normalized.rna.measures, "rna_data.csv", row.names = F)
 ```
   
   
-##### Para leer el archivo rna_data.csv:
+#### Para leer el archivo rna_data.csv:
 En ventana emergente se debe buscar el archivo *rna_data.csv*.
 ```{r}
 normalized.rna.measures <- fread(choose.files())
@@ -60,7 +60,7 @@ normalized.rna.measures[, rnaseq_profile_id := as.factor(rnaseq_profile_id)]
 ```
   
   
-#### Guardamos la información pertinente de los donadores
+### Guardamos la información pertinente de los donadores
 ```{r}
 donor.info.dt <- donor.information
 setDT(donor.info.dt)
@@ -68,7 +68,7 @@ donor.info.dt[, .(donor_id, ever_tbi_w_loc, dsm_iv_clinical_diagnosis, braak)]
 ```
   
   
-#### Guardamos la informacón pertinente de los genes y de las muestras
+### Guardamos la información pertinente de los genes y de las muestras
 ```{r}
 rows.genes.dt <- rows.genes[, .(gene_id, gene_symbol)]
 
@@ -77,7 +77,7 @@ column.samples.dt <- column.samples[, .(rnaseq_profile_id, donor_id,hemisphere,
 ```
   
   
-##### Unimos la informacion de los valores del ARN con la información de los genes
+### Unimos la informacion de los valores del ARN con la información de los genes
 Nos aseguramos de que correspondan usando la etiqueta *gene_id*.
 ```{r}
 rna.measure.genes <- merge(rows.genes.dt, normalized.rna.measures, 
@@ -85,7 +85,7 @@ rna.measure.genes <- merge(rows.genes.dt, normalized.rna.measures,
 ```
   
   
-##### Ahora unimos con la información de las muestras
+### Ahora unimos con la información de las muestras
 En este paso agregamos la información de los hemisferios y de las estructuras.
 Nos aseguramos de que correspondan usando la etiqueta *rnaseq_profile_id*.
 ```{r}
@@ -94,7 +94,7 @@ rna.measure.genes <- merge(column.samples.dt, rna.measure.genes,
 ```
   
   
-##### Por último, unimos con la información relevante de los donadores
+### Por último, unimos con la información relevante de los donadores
 Nos aseguramos de que correspondan usando la etiqueta *donor_id*.
 (Nota: Ejecutar este chunk puede ser tardado)
 ```{r}
@@ -119,6 +119,9 @@ un hemisferio y se eligió el derecho porque es del que se tienen más muestras.
   
 ### Elegimos los genes de nuestro interés
 Seleccionamos MBP y PLP1, de materia blanca del lóbulo parietal derecho
+(ya que buscaremos genes de proteínas de mielina, la mejor decisión es hacerlo
+con muestras de materia blanca, pero de ésta en la base de datos solamente se
+tienen del lóbulo parietal y hay más muestras del parietal derecho).
 ```{r}
 MBP_PLP1_FWM <- rna.measure.genes[(gene_symbol == "MBP" & 
              structure_acronym == "FWM" & hemisphere == "right" ) | 
@@ -127,7 +130,7 @@ MBP_PLP1_FWM <- rna.measure.genes[(gene_symbol == "MBP" &
 ```
   
   
-#### Seleccionamos las muestras de MBP y PLP1 de los sujetos con AD sin TBI
+### Seleccionamos las muestras de MBP y PLP1 de los sujetos con AD sin TBI
 Son 16 sujetos con AD sin TBI, pero se eliminó uno que no tiene los valores
 para ninguno de los genes de nuestro interés
 y se eliminaron 2 cuya información es del hemisferio izquierdo, quedando 13.
@@ -142,14 +145,14 @@ PLP1_AD_sin_TBI <- subset(MBP_PLP1_FWM,
 ```
   
   
-##### Quitamos algunas columnas que se repetirían al unir los subsets
+### Quitamos algunas columnas que se repetirían al unir los subsets
 ```{r}
 PLP1_AD_sin_TBI <- select(PLP1_AD_sin_TBI, -dsm_iv_clinical_diagnosis, 
                         -hemisphere, -braak)
 ```
   
   
-##### Unimos la información de los subsets con la etiqueda donor_id
+### Unimos la información de los subsets con la etiqueda donor_id
 Las columnas con nombre repetido que necesitaremos
 tomarán el sufijo del subset del que provienen para poder distinguirlas.
 ```{r}
@@ -158,7 +161,7 @@ grupo_AD <- merge(PLP1_AD_sin_TBI, MBP_AD_sin_TBI, by = "donor_id",
 ```
   
   
-##### Por último, elegimos solamente los datos que ocuparemos
+### Por último, elegimos solamente los datos que ocuparemos
 ```{r}
 grupo_AD <- grupo_AD[, .(donor_id,dsm_iv_clinical_diagnosis,
                        hemisphere, value.PLP1, value.MBP, braak)]
@@ -181,7 +184,7 @@ count(PLP1_sanos)
 ```
   
   
-#### Eliminamos al sujeto que no tiene los valores para PLP1
+### Eliminamos al sujeto que no tiene los valores para PLP1
 Al revisar *PLP_sanos*, vemos que hay un sujeto que no tiene los valores
 de PLP1, pero entró a *MBP_PLP1_FWM* porque sí tiene la información de MBP.
 Una vez excluído quedan 13 sujetos.
@@ -211,14 +214,14 @@ count(MBP_control)
 ```
   
   
-##### Quitamos algunas columnas que se repetirían al unir los subsets
+### Quitamos algunas columnas que se repetirían al unir los subsets
 ```{r}
 MBP_control <- select(MBP_control, -dsm_iv_clinical_diagnosis,
                     -hemisphere, -braak)
 ```
   
   
-##### Unimos la informacion de los subsets con la etiqueta donor_id
+### Unimos la informacion de los subsets con la etiqueta donor_id
 Las columnas con nombre repetido que necesitaremos
 toman el sufijo del subset del que provienen para poder distinguirlas
 ```{r}
@@ -227,7 +230,7 @@ grupo_control <- merge(PLP1_control, MBP_control, by = "donor_id",
 ```
   
   
-##### Por último, elegimos solamente los datos que ocuparemos
+### Por último, elegimos solamente los datos que ocuparemos
 Resultado: grupo_control: 13 sujetos sin AD ni TBI, unidos por el *donor_id*.
 ```{r}
 grupo_control <- grupo_control[, .(donor_id, dsm_iv_clinical_diagnosis,
@@ -239,14 +242,16 @@ no será necesario hacer un submuestreo aleatorio.
 ---
   
   
-## Data frames que contengan ambos grupos
+## Dataframes que contengan ambos grupos
   
-### Creamos un data frame uniendo las filas de nuestros dos grupos
+### Creamos un dataframe uniendo las filas de nuestros dos grupos
 ```{r}
 Ambos_grupos <- rbind(grupo_AD, grupo_control)
 count(Ambos_grupos)
+Ambos_grupos
 ```
-Resultado: 26 filas, 13 del grupo AD y 13 del grupo control
+Resultado: 26 filas, 13 del grupo AD y 13 del grupo control,
+los valores de MBP y PLP1 están en columnas separadas
   
   
 ### Crearemos un data frame filtrando toda la información inicial directamente
@@ -257,9 +262,11 @@ Todos <- MBP_PLP1_FWM[(donor_id != 326765689 & ever_tbi_w_loc == "N" &
                      (dsm_iv_clinical_diagnosis == "Alzheimer's Disease Type" |
                         dsm_iv_clinical_diagnosis == "No Dementia"))]
 count(Todos)
+Todos
 ```
 Resultado: 52 filas:
 13 de MBP con AD, 13 de PLP1 con AD, 13 de MBP sin AD y 13 de PLP1 sin AD.
+Los valores de MBP y PLP1 se encuentran en la misma columna.
 ---
   
   
@@ -299,10 +306,12 @@ En rojo está la densidad de los valores de ARN del grupo con AD
 y en verde la densidad de los valores de ARN del grupo control.
 ```{r}
 sm::sm.density.compare(Ambos_grupos$value.MBP, as.factor(
-  Ambos_grupos$dsm_iv_clinical_diagnosis), xlab = "MBP")
+  Ambos_grupos$dsm_iv_clinical_diagnosis), nboot = 1000, ngrid = 500,
+  xlab = "MBP", ylab = "Densidad")
 
 sm::sm.density.compare(Ambos_grupos$value.PLP1, as.factor(
-  Ambos_grupos$dsm_iv_clinical_diagnosis), xlab = "PLP1")
+  Ambos_grupos$dsm_iv_clinical_diagnosis), nboot = 1000, ngrid = 500,
+  xlab = "PLP1", ylab = "Densidad")
 ```
   
   
@@ -325,17 +334,22 @@ la hipótesis nula de que las muestras provienen de una distribución normal
 ### Q-Q plots
 Gráfico cuantil-cuantil para observar dispersiones en las distribuciones
 ```{r}
-car::qqPlot(grupo_AD$value.MBP)
+car::qqPlot(grupo_AD$value.MBP, distribution=c("t", "norm"),
+            xlab = "Cuantiles teóricos", ylab = "MBP grupo AD")
 
-car::qqPlot(grupo_AD$value.PLP1)
+car::qqPlot(grupo_control$value.MBP, distribution=c("t", "norm"),
+            xlab = "Cuantiles teóricos", ylab = "MBP grupo control")
 
-car::qqPlot(grupo_control$value.MBP)
+car::qqPlot(grupo_AD$value.PLP1, distribution=c("t", "norm"),
+            xlab = "Cuantiles teóricos", ylab = "PLP1 grupo AD")
 
-car::qqPlot(grupo_control$value.PLP1)
+car::qqPlot(grupo_control$value.PLP1, distribution=c("t", "norm"),
+            xlab = "Cuantiles teóricos", ylab = "PLP1 grupo control")
 ```
 En el eje de las abscisas están los cuantiles teóricos de la distribución normal,
-en el eje de las ordenadas están los cuantiles reales de la muestra. 
-  
+en el eje de las ordenadas están los cuantiles empíricos de las muestras.
+Podemos observar gran dispersión en la muestra de PLP1 del grupo con AD.  
+
   
 Gráficos describiendo distribución de los grupos en muestreos repetidos
 ```{r}
@@ -347,19 +361,21 @@ fitdistrplus::descdist(grupo_control$value.MBP, boot = 1000)
 
 fitdistrplus::descdist(grupo_control$value.PLP1, boot = 1000)
 ```
+Podemos observar que sí es una limitación la reducida n, por lo que debemos ser
+cautelosos con las conclusiones que obtengamos de los análisis de estos datos.
   
   
 #### Comprobación de homocedasticidad
 Hacemos un test de Bartlett para corroborar homogeneidad de varianza.
 ```{r}
-bartlett.test(list(grupo_AD$value.MBP,grupo_control$value.MBP))
+bartlett.test(list(grupo_AD$value.MBP, grupo_control$value.MBP))
 ```
 El test no encontró diferencia en las varianzas de MBP
 en los dos grupos (p>alfa).
   
   
 ```{r}
-bartlett.test(list(grupo_AD$value.PLP1,grupo_control$value.PLP1))
+bartlett.test(list(grupo_AD$value.PLP1, grupo_control$value.PLP1))
 ```
 El test **sí encontró diferencia en las varianzas de PLP1**
 en los 2 grupos (p<alfa)
@@ -369,13 +385,20 @@ en los 2 grupos (p<alfa)
 ## Análisis estadístico de los datos  
 
 ### Cálculo de medidas de tendencia central y medidas de dispersión
-
+Ya que la media es afectada por los valores extremos,
+calcularemos también la mediana que es una medida más robusta.
+Por otro lado, la desviación estándar es con respecto a la media y cada muestra
+tiene su propia media, así que para poder comparar la dispersión de las muestras
+usaremos el coeficiente de variación, que es el cociente de la desviación
+estándar entre la media.  
+  
+  
 Para MBP:
 ```{r}
 Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
   MBP_media = mean(value.MBP), MBP_mediana = median(value.MBP),
   MBP_desviacion_estandar = sd(value.MBP),
-  MBP_coef_variacion = sd(value.MBP)/mean(value.MBP))
+  MBP_coef_variacion_porcentual = (sd(value.MBP)/mean(value.MBP))*100)
 ```
 Coeficientes de variación similares
   
@@ -385,37 +408,52 @@ Para PLP1:
 Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
   PLP1_media = mean(value.PLP1), PLP_mediana = median(value.PLP1),
   PLP1_desviacion_estandar = sd(value.PLP1),
-  PLP1_coef_variacion = sd(value.PLP1)/mean(value.PLP1))
+  PLP1_coef_variacion_porcentual = (sd(value.PLP1)/mean(value.PLP1))*100)
 ```
 Coeficientes de variación no similares
   
   
-### Intervalos de confianza y pruebas t 
+## Intervalos de confianza y pruebas t 
 
-#### Intervalos de confianza para la media:
+### Intervalos de confianza bilaterales y unilaterales para la media:
+Para MBP:
 ```{r}
 t.test(grupo_AD$value.MBP)$conf.int
+t.test(grupo_AD$value.MBP, alternative = "less")$conf.int
 
 t.test(grupo_control$value.MBP)$conf.int
+t.test(grupo_control$value.MBP, alternative = "less")$conf.int
+```
+A partir de las estadísticas muestrales podemos estimar los parámetros poblacionales,
+con los intervalos de confianza podemos estimar que en un 95% de
+muestras que se recolecten tendremos a la media poblacional:
 
+Según el intervalo bilateral, el valor promedio de MBP para la población con AD
+está entre 1437.928 y 2656.354 FPKM. El intervalo unilateral indica que
+la media es menor a 2545.482 FPKM.
+
+Según el intervalo bilateral, el valor promedio de MBP para la población sin AD
+está entre 2180.574 y 4224.110 FPKM. El intervalo unilateral indica que
+la media es menor a 4038.157 FPKM.  
+
+Para PLP1:
+```{r}
 t.test(grupo_AD$value.PLP1)$conf.int
+t.test(grupo_AD$value.PLP1, alternative = "less")$conf.int
 
 t.test(grupo_control$value.PLP1)$conf.int
+t.test(grupo_control$value.PLP1, alternative = "less")$conf.int
 ```
-Con los intervalos de confianza bilaterales
-podemos estimar que en un 95% de muestras:
+Según el intervalo bilateral, el valor promedio de PLP1 para la población con AD
+está entre 1074.275 y 1659.211 FPKM. El intervalo unilateral indica que
+la media es menor a 1605.984 FPKM.
 
-Los valores promedio de MBP para las muestras con AD
-estarán entre 1437.928 y 2656.354 FPKM.
-Los valores promedio de MBP para las muestras sin AD
-estarán entre 2180.574 y 4224.110 FPKM.
 
-Los valores promedio de PLP1 para las muestras con AD
-estarán entre 1074.275 y 1659.211 FPKM.
-Los valores promedio de PLP1 para las muestras sin AD
-estarán entre 1018.609 y 2381.012 FPKM.
+Según el intervalo bilateral, el valor promedio de PLP1 para la población sin AD
+está entre 1018.609 y 2381.012 FPKM. El intervalo unilateral indica que
+la media es menor a 2257.039 FPKM.
   
-#### Pruebas t para comparar las medias de 2 grupos independientes
+### Pruebas t para comparar las medias de 2 grupos independientes
 Para MBP basta usar una prueba t de student 
 porque los supuestos de normalidad y homocedasticidad ya fueron comprobados.
 ```{r}
@@ -428,13 +466,13 @@ Es negativa porque es menor la media del grupo con AD.
 Podemos concluir con un nivel de confianza del 95% que:
 los FPKM promedio de MBP del grupo con AD **son inferiores**
 a los FPKM promedio de MBP del grupo control,
-ya que el intervalo de confianza no incluye el cero
+ya que el intervalo de confianza no incluye al cero
 y el límite resultó negativo.
 (La expresión media de MBP del grupo con AD
 es menor que la expresión media de MBP del grupo control)
   
   
-##### Comprobación de la diferencia en MBP con prueba t para varianzas desiguales
+### Comprobación de la diferencia en MBP con prueba t para varianzas desiguales
 ```{r}
 t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
        var.equal = FALSE, alternative = "less")
@@ -442,18 +480,18 @@ t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
 *p-value = 0.02369. Sí hay diferencia en MBP.
   
   
-#### Prueba t de Welch para PLP1
+### Prueba t de Welch para PLP1
 Para PLP1 se necesita una prueba t adaptada a varianzas desiguales
 ya que las muestras son heterocedásticas,
 por lo que usaremos una prueba t de Welch.
-La misma con la que comprobamos la diferencia de MBP.
+Es la misma prueba con la que comprobamos la diferencia de MBP.
 ```{r}
 t.test(value.PLP1 ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
        var.equal = FALSE, alternative = "less")
 ```
-Sin diferencia en PLP1, p > alfa (p-value = 0.171).
+**Sin diferencia en PLP1**, p > alfa (p-value = 0.171).
 Podemos concluir con un nivel de confianza del 95% que:
-los FPKM promedio de PLP1 del grupo con AD no son inferiores
+los FPKM promedio de PLP1 del grupo con AD **no** son inferiores
 a los FPKM promedio de PLP1 del grupo control.
 (La expresión media de PLP1 del grupo con AD no
 es menor que la expresión media de MBP del grupo control) 
