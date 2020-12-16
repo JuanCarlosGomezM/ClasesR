@@ -346,13 +346,13 @@ la hipótesis nula de que las muestras provienen de una distribución normal
 Gráfico cuantil-cuantil para observar dispersiones en las distribuciones
 ```{r}
 car::qqPlot(grupo_AD$value.MBP, distribution=c("t", "norm"),
-            xlab = "Cuantiles teóricos", ylab = "MBP grupo AD")
+            xlab = "Cuantiles teóricos", ylab = "MBP grupo con AD")
 
 car::qqPlot(grupo_control$value.MBP, distribution=c("t", "norm"),
             xlab = "Cuantiles teóricos", ylab = "MBP grupo control")
 
 car::qqPlot(grupo_AD$value.PLP1, distribution=c("t", "norm"),
-            xlab = "Cuantiles teóricos", ylab = "PLP1 grupo AD")
+            xlab = "Cuantiles teóricos", ylab = "PLP1 grupo con AD")
 
 car::qqPlot(grupo_control$value.PLP1, distribution=c("t", "norm"),
             xlab = "Cuantiles teóricos", ylab = "PLP1 grupo control")
