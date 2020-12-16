@@ -363,7 +363,7 @@ Podemos observar gran dispersión en la muestra de PLP1 del grupo con AD.
 
 ---  
 
-Gráficos describiendo distribución de los grupos en muestreos repetidos
+Gráficos describiendo distribución de los grupos en muestreos repetidos:
 ```{r}
 fitdistrplus::descdist(grupo_AD$value.MBP, boot = 1000)
 
