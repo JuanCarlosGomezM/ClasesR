@@ -411,8 +411,9 @@ Para MBP:
 ```{r}
 Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
   MBP_media = mean(value.MBP), MBP_mediana = median(value.MBP),
-  MBP_desviacion_estandar = sd(value.MBP),
-  MBP_coef_variacion_porcentual = (sd(value.MBP)/mean(value.MBP))*100)
+  MBP_desviacion_est = sd(value.MBP),
+  MBP_coef_variacion_porcentual = (sd(value.MBP) / mean(value.MBP)) * 100,
+  MBP_error_est = (sd(value.MBP) / sqrt(length(value.MBP))))
 ```
 Coeficientes de variación similares
   
@@ -422,7 +423,8 @@ Para PLP1:
 Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
   PLP1_media = mean(value.PLP1), PLP_mediana = median(value.PLP1),
   PLP1_desviacion_estandar = sd(value.PLP1),
-  PLP1_coef_variacion_porcentual = (sd(value.PLP1)/mean(value.PLP1))*100)
+  PLP1_coef_variacion_porcentual = (sd(value.PLP1) / mean(value.PLP1)) * 100,
+  PLP1_error_est = (sd(value.PLP1) / sqrt(length(value.PLP1))))
 ```
 Coeficientes de variación no similares
   
@@ -522,7 +524,8 @@ Haremos un gráfico de barras de los niveles promedio,
 con líneas de error estándar con mínimo en
 la media menos el error estándar y máximo en la media más el error estándar.
 El asterisco indica que hubo diferencia.
-Ya que no calculamos el error estándar (se) antes, lo agregaremos ahora con *mutate*.
+Ya que no creamos una variable con el error estándar (se) antes, lo agregaremos
+ahora con *mutate*.
 ```{r}
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   mutate(se = sd(value) / sqrt(length(value)), mean_value = mean(value)) %>%
