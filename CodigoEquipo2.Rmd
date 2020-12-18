@@ -315,11 +315,11 @@ En rojo está la densidad de los valores de ARN del grupo con AD
 y en verde la densidad de los valores de ARN del grupo control.
 ```{r}
 sm::sm.density.compare(Ambos_grupos$value.MBP, as.factor(
-  Ambos_grupos$dsm_iv_clinical_diagnosis), lwd = 3, nboot = 1000, ngrid = 500,
+  Ambos_grupos$dsm_iv_clinical_diagnosis), lwd = 2, ngrid = 500,
   xlab = "MBP", ylab = "Densidad")
 
 sm::sm.density.compare(Ambos_grupos$value.PLP1, as.factor(
-  Ambos_grupos$dsm_iv_clinical_diagnosis), lwd = 3, nboot = 1000, ngrid = 500,
+  Ambos_grupos$dsm_iv_clinical_diagnosis), lwd = 2, ngrid = 500,
   xlab = "PLP1", ylab = "Densidad")
 ```
   
