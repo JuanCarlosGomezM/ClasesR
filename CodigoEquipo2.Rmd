@@ -308,6 +308,20 @@ pwr::pwr.t.test(n = NULL,
 ```
 n = 20.03277
   
+### Cálculo del tamaño del efecto con la n y el poder que tenemos
+Ya que nuestro poder estadístico es bajo debido a la n,
+conviene calcular cuál es el tamaño del efecto mínimo que debe tener
+la variable independiente para que encontremos una diferencia significativa
+```{r}
+pwr::pwr.t.test(n = 13, 
+                d = NULL, sig.level = 0.05, type = "two.sample", 
+                alternative = "less", power = 0.6318458)
+```
+El tamaño del efecto mínimo es de -0.8000023, prácticamente idéntico al tamaño
+del efecto convencional (0.8, pues el signo es arbitrario), lo que implica que
+si se encuentran diferencias a pesar del poder estadístico reducido, el efecto,
+al menos en estas muestras, está tan presente como el esperado por convención.
+  
 ---  
   
 ### Gráficos de densidad para observar distribuciones
