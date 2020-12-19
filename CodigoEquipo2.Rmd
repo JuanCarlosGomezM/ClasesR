@@ -418,29 +418,55 @@ calcularemos también la mediana que es una medida más robusta.
 Por otro lado, la desviación estándar es con respecto a la media y cada muestra
 tiene su propia media, así que para poder comparar la dispersión de las muestras
 usaremos el coeficiente de variación, que es el cociente de la desviación
-estándar entre la media.  
+estándar entre la media. Por último, sacaremos el rango intercuartil (IQR)
+que es un estimador más robusto de la dispersión y también calcularemos 
+el error estándar como estimador de la variabilidad de las medias muestrales.
   
   
-Para MBP:
+Cuartiles, mínimo, máximo, media y mediana de MBP del grupo con AD:
+```{r}
+summary(grupo_AD$value.MBP)
+```
+
+Cuartiles, mínimo, máximo, media y mediana de MBP del grupo control: 
+```{r}
+summary(grupo_control$value.MBP)
+```
+  
+  
+Medidas de dispersión de MBP de ambos grupos:
 ```{r}
 Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
-  MBP_media = mean(value.MBP), MBP_mediana = median(value.MBP),
-  MBP_desviacion_est = sd(value.MBP),
-  MBP_coef_variacion_porcentual = (sd(value.MBP) / mean(value.MBP)) * 100,
-  MBP_error_est = (sd(value.MBP) / sqrt(length(value.MBP))))
+  MBP_desviacion_estandar = sd(value.MBP),
+  MBP_coeficiente_variacion_porcentual = (sd(value.MBP) / mean(value.MBP)) * 100,
+  MBP_IQR = IQR(value.MBP),
+  MBP_error_estandar = (sd(value.MBP) / sqrt(length(value.MBP))))
 ```
 Coeficientes de variación similares
   
   
-Para PLP1:
+
+Cuartiles, mínimo, máximo, media y mediana de PLP1 del grupo con AD:
+```{r}
+summary(grupo_AD$value.PLP1)
+```
+
+Cuartiles, mínimo, máximo, media y mediana de PLP1 del grupo control: 
+```{r}
+summary(grupo_control$value.PLP1)
+```
+
+  
+Medidas de dispersión de PLP1 de ambos grupos:
 ```{r}
 Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
-  PLP1_media = mean(value.PLP1), PLP_mediana = median(value.PLP1),
   PLP1_desviacion_estandar = sd(value.PLP1),
-  PLP1_coef_variacion_porcentual = (sd(value.PLP1) / mean(value.PLP1)) * 100,
-  PLP1_error_est = (sd(value.PLP1) / sqrt(length(value.PLP1))))
+  PLP1_coeficiente_variacion_porcentual = (sd(value.PLP1) / mean(value.PLP1)) * 100,
+  PLP1_IQR = IQR(value.PLP1),
+  PLP1_error_estandar = (sd(value.PLP1) / sqrt(length(value.PLP1))))
 ```
-Coeficientes de variación no similares
+Coeficientes de variación no similares  
+  
   
   
 ## Intervalos de confianza y pruebas t 
