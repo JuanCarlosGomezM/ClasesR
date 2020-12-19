@@ -310,8 +310,8 @@ n = 20.03277
   
 ### Cálculo del tamaño del efecto con la n y el poder que tenemos
 Ya que nuestro poder estadístico es bajo debido a la n,
-conviene calcular cuál es el tamaño del efecto mínimo que debe tener
-la variable independiente para que encontremos una diferencia significativa
+conviene calcular cuál es el tamaño del efecto mínimo que deben hacer
+las variables independientes para que encontremos una diferencia significativa
 ```{r}
 pwr::pwr.t.test(n = 13, 
                 d = NULL, sig.level = 0.05, type = "two.sample", 
