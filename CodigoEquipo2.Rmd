@@ -535,7 +535,8 @@ es menor que la expresión media de MBP del grupo control)
 t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
        var.equal = FALSE, alternative = "less")
 ```
-*p-value = 0.02369. Sí hay diferencia en MBP.
+*p-value = 0.02369. Sí hay diferencia en MBP. («Una hipótesis estadística es
+siempre una afirmación sobre la población, no sobre la muestra», Hayes, 1963)
   
   
 ### Prueba t de Welch para PLP1
