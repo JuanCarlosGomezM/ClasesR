@@ -387,7 +387,7 @@ fitdistrplus::descdist(grupo_control$value.MBP, boot = 1000)
 
 fitdistrplus::descdist(grupo_control$value.PLP1, boot = 1000)
 ```
-Podemos observar que sí es una limitación la reducida n, por lo que debemos ser
+Podemos observar que a pesar del resultado del test de Shapiro-Wilk sí es una limitación la reducida n, por lo que debemos ser
 cautelosos con las conclusiones que obtengamos de los análisis de estos datos.
   
 ---  
@@ -564,8 +564,8 @@ Haremos un gráfico de barras de los niveles promedio,
 con líneas de error estándar con mínimo en
 la media menos el error estándar y máximo en la media más el error estándar.
 El asterisco indica que hubo diferencia.
-Ya que no creamos una variable con el error estándar (se) antes, lo agregaremos
-ahora con *mutate*.
+Ya que no creamos una variable con la media y el error estándar (se) antes,
+los agregaremos ahora con *mutate*.
 ```{r}
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   mutate(se = sd(value) / sqrt(length(value)), mean_value = mean(value)) %>%
