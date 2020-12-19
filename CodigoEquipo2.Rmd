@@ -524,8 +524,8 @@ Es negativa porque es menor la media del grupo con AD.
 Podemos concluir con un nivel de confianza del 95% que:
 los FPKM promedio de MBP del grupo con AD **son inferiores**
 a los FPKM promedio de MBP del grupo control,
-ya que el intervalo de confianza no incluye al cero
-y el límite resultó negativo.
+ya que el intervalo de confianza de la diferencia de las medias 
+no incluye al cero y el límite resultó negativo.
 (La expresión media de MBP del grupo con AD
 es menor que la expresión media de MBP del grupo control)
   
