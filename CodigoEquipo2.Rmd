@@ -320,7 +320,7 @@ pwr::pwr.t.test(n = 13,
                 alternative = "less", power = 0.6318458)
 ```
 El tamaño del efecto mínimo es de -0.8000023, prácticamente idéntico al tamaño
-del efecto convencional (0.8, pues el signo es arbitrario), lo que implica que
+del efecto convencional (0.8, pues se toma el valor absoluto), lo que implica que
 si se encuentran diferencias a pesar del poder estadístico reducido, el efecto,
 al menos en estas muestras, está tan presente como el esperado por convención.
   
@@ -361,16 +361,16 @@ la hipótesis nula de que las muestras provienen de una distribución normal
 ### Q-Q plots
 Gráfico cuantil-cuantil para observar dispersiones en las distribuciones
 ```{r}
-car::qqPlot(grupo_AD$value.MBP, distribution=c("t", "norm"),
+car::qqPlot(grupo_AD$value.MBP, distribution= "norm",
             xlab = "Cuantiles teóricos", ylab = "MBP grupo con AD")
 
-car::qqPlot(grupo_control$value.MBP, distribution=c("t", "norm"),
+car::qqPlot(grupo_control$value.MBP, distribution = "norm",
             xlab = "Cuantiles teóricos", ylab = "MBP grupo control")
 
-car::qqPlot(grupo_AD$value.PLP1, distribution=c("t", "norm"),
+car::qqPlot(grupo_AD$value.PLP1, distribution= "norm",
             xlab = "Cuantiles teóricos", ylab = "PLP1 grupo con AD")
 
-car::qqPlot(grupo_control$value.PLP1, distribution=c("t", "norm"),
+car::qqPlot(grupo_control$value.PLP1, distribution= "norm",
             xlab = "Cuantiles teóricos", ylab = "PLP1 grupo control")
 ```
 En el eje de las abscisas están los cuantiles teóricos de la distribución normal,
@@ -445,7 +445,26 @@ Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
   MBP_error_estandar = (sd(value.MBP) / sqrt(length(value.MBP))))
 ```
 Coeficientes de variación similares
-  
+
+
+Estimación de la dispersión de las poblaciones de las que provienen las muestras
+de MBP suponiendo que la varianza de ambas poblaciones es la misma:
+(Para la varianza agrupada hay que dividir entre 2 la suma de los cuadrados de
+las desviaciones estándar de las muestras.
+Para la desviación estándar agrupada basta con sacar la raíz cuadrada de la
+varianza agrupada.)
+```{r}
+Varianza_agrupada_MBP <- (((1008.140)**2)+((1690.846)**2))/2
+Varianza_agrupada_MBP
+
+Desviacion_est_agrupada_MBP <- sqrt(Varianza_agrupada_MBP)
+Desviacion_est_agrupada_MBP
+
+effectsize::sd_pooled(value.MBP ~ dsm_iv_clinical_diagnosis, data = Ambos_grupos)
+```
+Varianza agrupada de MBP = 1937653 FPKM
+Desviación estándar agrupada de MBP (Pooled Standard Deviation) = 1391.996 FPKM
+Usando la función sd_pooled del paquete effectsize se obtuvo el mismo resultado.
   
 
 Cuartiles, mínimo, máximo, media y mediana de PLP1 del grupo con AD:
@@ -467,7 +486,22 @@ Ambos_grupos %>% group_by(dsm_iv_clinical_diagnosis) %>% summarise(
   PLP1_IQR = IQR(value.PLP1),
   PLP1_error_estandar = (sd(value.PLP1) / sqrt(length(value.PLP1))))
 ```
-Coeficientes de variación no similares  
+Coeficientes de variación no similares
+
+Estimación de la dispersión de las poblaciones de las que provienen las muestras
+de PLP1 suponiendo que la varianza de ambas poblaciones es la misma:
+```{r}
+Varianza_agrupada_PLP1 <- (((483.9827)**2)+((1127.2678)**2))/2
+Varianza_agrupada_PLP1
+
+Desviacion_est_agrupada_PLP1 <- sqrt(Varianza_agrupada_PLP1)
+Desviacion_est_agrupada_PLP1
+
+effectsize::sd_pooled(value.PLP1 ~ dsm_iv_clinical_diagnosis, data = Ambos_grupos)
+```
+Varianza agrupada de PLP1 = 752486 FPKM
+Desviación estándar agrupada de PLP1 (Pooled Standard Deviation) = 867.4595 FPKM
+Usando la función sd_pooled del paquete effectsize se obtuvo el mismo resultado.
   
   
   
@@ -493,6 +527,7 @@ la media es menor a 2545.482 FPKM.
 Según el intervalo bilateral, el valor promedio de MBP para la población sin AD
 está entre 2180.574 y 4224.110 FPKM. El intervalo unilateral indica que
 la media es menor a 4038.157 FPKM.  
+
 
 Para PLP1:
 ```{r}
@@ -520,14 +555,16 @@ porque los supuestos de normalidad y homocedasticidad ya fueron comprobados.
 t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
        var.equal = TRUE, alternative = "less")
 ```
+df: grados de libertad
+
 **Hay diferencia en MBP**, p < alfa (*p-value = 0.02246).
-Diferencia de las medias = 2047.141 - 3202.342 = -1155.201
-Es negativa porque es menor la media del grupo con AD.
+Diferencia de las medias = -1155.201
+Límite del intervalo de confianza de la diferencia de las medias = -221.0841 FPKM
 Podemos concluir con un nivel de confianza del 95% que:
 los FPKM promedio de MBP del grupo con AD **son inferiores**
 a los FPKM promedio de MBP del grupo control,
-ya que el intervalo de confianza de la diferencia de las medias 
-no incluye al cero y el límite resultó negativo.
+ya que el límite del intervalo de confianza
+de la diferencia de las medias resultó negativo.
 (La expresión media de MBP del grupo con AD
 es menor que la expresión media de MBP del grupo control)
   
@@ -537,8 +574,21 @@ es menor que la expresión media de MBP del grupo control)
 t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
        var.equal = FALSE, alternative = "less")
 ```
+df: grados de libertad
+
+Límite del intervalo de confianza de la diferencia de las medias = -212.5361 FPKM
 *p-value = 0.02369. Sí hay diferencia en MBP. («Una hipótesis estadística es
 siempre una afirmación sobre la población, no sobre la muestra», Hayes, 1963)
+  
+  
+Error estándar de la diferencia de la media de MBP  
+```{r}
+t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
+       var.equal = TRUE, alternative = "less")$stderr
+
+t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
+       var.equal = FALSE, alternative = "less")$stderr
+```
   
   
 ### Prueba t de Welch para PLP1
@@ -550,12 +600,78 @@ Es la misma prueba con la que comprobamos la diferencia de MBP.
 t.test(value.PLP1 ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
        var.equal = FALSE, alternative = "less")
 ```
+df: grados de libertad
+
 **Sin diferencia en PLP1**, p > alfa (p-value = 0.171).
+Diferencia de las medias = -333.067
+Límite del intervalo de confianza de la diferencia de las medias = 260.339 FPKM
 Podemos concluir con un nivel de confianza del 95% que:
 los FPKM promedio de PLP1 del grupo con AD **no** son inferiores
-a los FPKM promedio de PLP1 del grupo control.
+a los FPKM promedio de PLP1 del grupo control,
+ya que el límite del intervalo de confianza
+de la diferencia de las medias resultó positivo,
+a pesar de que la diferencia sea negativa.
 (La expresión media de PLP1 del grupo con AD no
 es menor que la expresión media de MBP del grupo control) 
+  
+Error estándar de la diferencia de la media de PLP1 
+```{r}
+t.test(value.PLP1 ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
+       var.equal = FALSE, alternative = "less")$stderr
+```
+  
+  
+### Cálculo post-hoc del tamaño del efecto en MBP dados los resultados de la prueba t:
+
+Para calcular la d de Cohen sin formar un sistema cerrado que dependa del
+poder estadístico, el nivel de significación y la n,
+se divide la diferencia de las medias
+entre la raíz estándar agrupada.
+Las medias de MBP son:
+Para el grupo con AD = 2047.141 FPKM
+Para el grupo control = 3202.342 FPKM
+Y ya habíamos guardado previamente la raíz estándar agrupada de MBP.
+Entonces:
+```{r}
+tamanio_efecto_MBP <- (2047.141 - 3202.342)/Desviacion_est_agrupada_MBP
+tamanio_efecto_MBP
+
+effectsize::cohens_d(value.MBP ~ dsm_iv_clinical_diagnosis, data = Ambos_grupos)
+
+effectsize::t_to_d(-2.1158, 24, ci = 0.95)
+```
+Manualmente,
+el tamaño del efecto observado en MBP fue de -0.8298881.
+
+Usando la función cohens_d del paquete effectsize,
+el tamaño del efecto observado en MBP fue de -0.83.
+
+Haciendo una conversión del resultado de la prueba t de MBP
+(usando la t y los grados de libertad),
+el tamaño del efecto observado en MBP fue de -0.86.
+
+Debemos recordar que el tamaño de efecto mínimo que necesitábamos
+era de -0.8000023.
+
+Esto explica por qué se encontró una diferencia pese al bajo poder estadístico,
+**se requería que la d de Cohen fuera mayor a 0.8 y fue de 0.83 a 0.86**
+(tomando los valores absolutos).
+
+
+Interpretación de la d de Cohen obtenida de la diferencia en MBP:
+
+```{r}
+effectsize::interpret_d(-0.83)
+
+effectsize::d_to_common_language(-0.83)
+```
+El tamaño del efecto es grande.
+U3: porcentaje del grupo con AD
+que está por encima de la media del grupo control = 20%
+Overlap: porcentaje de traslape de los 2 grupos = 67%
+Probabilidad de superioridad: porcentaje de que una muestra
+elegida aleatoriamente del grupo con AD sea mayor
+a una muestra elegida aleatoriamente del grupo control = 27%
 
 ---
   
