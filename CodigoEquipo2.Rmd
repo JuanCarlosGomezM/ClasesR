@@ -153,7 +153,7 @@ PLP1_AD_sin_TBI <- subset(MBP_PLP1_FWM,
 ### Quitamos algunas columnas que se repetirían al unir los subsets
 ```{r}
 PLP1_AD_sin_TBI <- select(PLP1_AD_sin_TBI, -dsm_iv_clinical_diagnosis, 
-                        -hemisphere, -braak)
+                        -hemisphere, -braak, -ever_tbi_w_loc, -structure_acronym)
 ```
   
   
@@ -168,8 +168,9 @@ grupo_AD <- merge(PLP1_AD_sin_TBI, MBP_AD_sin_TBI, by = "donor_id",
   
 ### Por último, elegimos solamente los datos que ocuparemos
 ```{r}
-grupo_AD <- grupo_AD[, .(donor_id,dsm_iv_clinical_diagnosis,
-                       hemisphere, value.PLP1, value.MBP, braak)]
+grupo_AD <- grupo_AD[, .(donor_id, dsm_iv_clinical_diagnosis,
+                         ever_tbi_w_loc, structure_acronym,
+                         hemisphere, value.PLP1, value.MBP, braak)]
 count(grupo_AD)
 ```
 Resultado: grupo_AD: 13 sujetos con AD sin TBI, unidos por el *donor_id*
@@ -223,7 +224,7 @@ count(MBP_control)
 ### Quitamos algunas columnas que se repetirían al unir los subsets
 ```{r}
 MBP_control <- select(MBP_control, -dsm_iv_clinical_diagnosis,
-                    -hemisphere, -braak)
+                    -hemisphere, -braak, -ever_tbi_w_loc, -structure_acronym)
 ```
   
   
@@ -240,7 +241,8 @@ grupo_control <- merge(PLP1_control, MBP_control, by = "donor_id",
 Resultado: grupo_control: 13 sujetos sin AD ni TBI, unidos por el *donor_id*.
 ```{r}
 grupo_control <- grupo_control[, .(donor_id, dsm_iv_clinical_diagnosis,
-                                 hemisphere, value.PLP1, value.MBP, braak)]
+                                   ever_tbi_w_loc, structure_acronym,
+                                   hemisphere, value.PLP1, value.MBP, braak)]
 count(grupo_control)
 ```
 Nuestro grupo control tiene mismo número que el grupo AD, por lo que
