@@ -621,7 +621,7 @@ t.test(value.PLP1 ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
 ```
   
   
-### Cálculo post-hoc del tamaño del efecto en MBP dados los resultados de la prueba t:
+### Cálculo del tamaño del efecto en MBP dados los resultados de la prueba t:
 
 Para calcular la d de Cohen sin formar un sistema cerrado que dependa del
 poder estadístico, el nivel de significación y la n,
