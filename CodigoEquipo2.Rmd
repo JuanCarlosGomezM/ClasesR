@@ -720,3 +720,19 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   ylim(0,7500)
 ```
 
+## Citas de los paquetes utilizados y de R
+Citamos R con "citation()";
+para los paquetes, usamos citation(package = "Ejemplo")
+```{r}
+citation()
+citation(package = "NeurocienciasIntroData")
+citation(package = "data.table")
+citation(package = "dplyr")
+citation(package = "ggplot2")
+citation(package = "pwr")
+citation(package = "sm")
+citation(package = "car")
+citation(package = "fitdistrplus")
+citation(package = "effectsize")
+citation(package = "ggsignif")
+```
