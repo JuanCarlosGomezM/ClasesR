@@ -719,6 +719,36 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   ggtitle("Niveles de ARN en sustancia blanca de lóbulo parietal derecho") +
   ylim(0,7500)
 ```
+Separaremos los boxplots usando facet_grid,
+espaciaremos los facets usando theme(panel.spacing.x).
+Ya que ahora el diagnóstico clínico irá en "y",
+cambiaremos el nombre de sus factores a español.
+
+Agregaremos la media representándola con un punto rojo,
+Ocultaremos el outlier y la leyenda del color de rellenado, centraremos el título
+y ésta vez pondremos el asterisco de significancia usando stat_compare_means
+del paquete ggpubr.
+```{r}
+Todos$dsm_iv_clinical_diagnosis <- recode_factor(Todos$dsm_iv_clinical_diagnosis,
+                                 "Alzheimer's Disease Type" = "Demencia tipo AD", 
+                                "No Dementia" = "Sin Demencia")
+
+Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
+  ggplot(aes(dsm_iv_clinical_diagnosis,value,fill = dsm_iv_clinical_diagnosis)) +
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(fun=mean, geom = "point", shape = 16, size = 2.5, color = "red") +
+  scale_fill_manual(values = c("#d8b365", "#5ab4ac")) +
+  labs(x = "Diagnóstico DSM-IV", y = "ARN normalizado (FPKM)", fill = "Diagnóstico DSM-IV") +
+  ggtitle("Niveles de ARN en sustancia blanca de lóbulo parietal derecho") +
+  ylim(0,7500) + facet_grid(~gene_symbol) +
+  theme(panel.spacing.x = unit(2, "lines"),legend.position = "none",
+        plot.title = element_text(hjust = 0.5)) +
+  ggpubr::stat_compare_means(method = "t.test", label = "p.signif",
+                             hide.ns = TRUE, label.y = 5500)
+
+
+```
+
 
 ## Citas de los paquetes utilizados y de R
 Citamos R con "citation()";
@@ -735,4 +765,6 @@ citation(package = "car")
 citation(package = "fitdistrplus")
 citation(package = "effectsize")
 citation(package = "ggsignif")
+citation(package = "ggpubr")
 ```
+
