@@ -589,6 +589,7 @@ t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
 t.test(value.MBP ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
        var.equal = FALSE, alternative = "less")$stderr
 ```
+Error estándar = 545.9857  
   
   
 ### Prueba t de Welch para PLP1
@@ -619,7 +620,7 @@ Error estándar de la diferencia de la media de PLP1
 t.test(value.PLP1 ~ dsm_iv_clinical_diagnosis, Ambos_grupos,
        var.equal = FALSE, alternative = "less")$stderr
 ```
-  
+  Error estándar = 340.2456
   
 ### Cálculo del tamaño del efecto en MBP dados los resultados de la prueba t:
 
@@ -640,18 +641,20 @@ effectsize::cohens_d(value.MBP ~ dsm_iv_clinical_diagnosis, data = Ambos_grupos)
 
 effectsize::t_to_d(-2.1158, 24, ci = 0.95)
 ```
+Considerando valores absolutos:
+
 Manualmente,
-el tamaño del efecto observado en MBP fue de -0.8298881.
+el tamaño del efecto observado en MBP fue de 0.8298881.
 
 Usando la función cohens_d del paquete effectsize,
-el tamaño del efecto observado en MBP fue de -0.83.
+el tamaño del efecto observado en MBP fue de 0.83.
 
 Haciendo una conversión del resultado de la prueba t de MBP
 (usando la t y los grados de libertad),
-el tamaño del efecto observado en MBP fue de -0.86.
+el tamaño del efecto observado en MBP fue de 0.86.
 
 Debemos recordar que el tamaño de efecto mínimo que necesitábamos
-era de -0.8000023.
+era de 0.8000023
 
 Esto explica por qué se encontró una diferencia pese al bajo poder estadístico,
 **se requería que la d de Cohen fuera mayor a 0.8 y fue de 0.83 a 0.86**
@@ -724,27 +727,35 @@ espaciaremos los facets usando theme(panel.spacing.x).
 Ya que ahora el diagnóstico clínico irá en "y",
 cambiaremos el nombre de sus factores a español.
 
+Daremos orden a los factores para que el grupo control quede a la izquierda.
+
 Agregaremos la media representándola con un punto rojo,
 Ocultaremos el outlier y la leyenda del color de rellenado, centraremos el título
 y ésta vez pondremos el asterisco de significancia usando stat_compare_means
 del paquete ggpubr.
+
+(Los 2 números al final de cada código de colores
+indican la transparencia del 00 al 99)
 ```{r}
 Todos$dsm_iv_clinical_diagnosis <- recode_factor(Todos$dsm_iv_clinical_diagnosis,
                                  "Alzheimer's Disease Type" = "Demencia tipo AD", 
                                 "No Dementia" = "Sin Demencia")
 
+Todos$dsm_iv_clinical_diagnosis <- factor(Todos$dsm_iv_clinical_diagnosis,
+                                          levels = c("Sin Demencia", "Demencia tipo AD"))
+
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   ggplot(aes(dsm_iv_clinical_diagnosis,value,fill = dsm_iv_clinical_diagnosis)) +
   geom_boxplot(outlier.shape = NA) +
   stat_summary(fun=mean, geom = "point", shape = 16, size = 2.5, color = "red") +
-  scale_fill_manual(values = c("#d8b365", "#5ab4ac")) +
+  scale_fill_manual(values = c("#D184C995", "#6684C995")) +
   labs(x = "Diagnóstico DSM-IV", y = "ARN normalizado (FPKM)", fill = "Diagnóstico DSM-IV") +
   ggtitle("Niveles de ARN en sustancia blanca de lóbulo parietal derecho") +
   ylim(0,7500) + facet_grid(~gene_symbol) +
   theme(panel.spacing.x = unit(2, "lines"),legend.position = "none",
         plot.title = element_text(hjust = 0.5)) +
   ggpubr::stat_compare_means(method = "t.test", label = "p.signif",
-                             hide.ns = TRUE, label.y = 5500)
+                             hide.ns = TRUE, label.y = 5500, label.x.npc = 0.99)
 
 
 ```
