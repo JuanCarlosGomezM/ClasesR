@@ -797,11 +797,13 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
         panel.grid.minor = element_line(size = 0.5, linetype = 'solid',
                                 colour = "gray"),
         axis.text = element_text(size = 10, color = "black")) +
-  coord_cartesian(ylim = c(0,7000)) +
+        coord_cartesian(ylim = c(0,7500)) +
+  #ggsignif::geom_signif(comparisons = list(c("Sin Demencia", "Demencia tipo AD")),
+  #test = "t.test", map_signif_level = TRUE)
   ggpubr::stat_compare_means(method = "t.test", label = "p.signif",
-                             hide.ns = TRUE, label.y = 5500,
-                             label.x.npc = 0.985, size = 6)
-
+                             hide.ns = TRUE, comparisons = list(c("Sin Demencia", "Demencia tipo AD")), size = 6)
+#con hide.ns se quita el NS pero queda el bracket.
+#Guardando previamente la localización de donde se quiere poner el bracket, no se genera correctamente el plot.
 
 ```
 
