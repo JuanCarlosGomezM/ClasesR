@@ -89,22 +89,24 @@ con_outliers_pez<-principal.cell.diff2 %>% group_by(species) %>%
   tidyr::drop_na()
 
 sin_outliers_rata <- con_outliers_rata[con_outliers_rata$surface > 
-                                         quantile(con_outliers_rata$surface, .25) - 
-                                         1.5*IQR(con_outliers_rata$surface) & 
+                                         (quantile(con_outliers_rata$surface, .25) - 
+                                         (1.5*IQR(con_outliers_rata$surface))) & 
                                          con_outliers_rata$surface < 
-                                         quantile(con_outliers_rata$surface, .75) + 
-                                         1.5*IQR(con_outliers_rata$surface), ]
+                                         (quantile(con_outliers_rata$surface, .75) + 
+                                         (1.5*IQR(con_outliers_rata$surface))), ]
 
 sin_outliers_pez <- con_outliers_pez[con_outliers_pez$surface > 
-                                       quantile(con_outliers_pez$surface, .25) -
-                                       1.5*IQR(con_outliers_pez$surface) & 
+                                       (quantile(con_outliers_pez$surface, .25) -
+                                       (1.5*IQR(con_outliers_pez$surface))) & 
                                        con_outliers_pez$surface < 
-                                       quantile(con_outliers_pez$surface, .75) + 
-                                       1.5*IQR(con_outliers_pez$surface), ]
+                                       (quantile(con_outliers_pez$surface, .75) + 
+                                       (1.5*IQR(con_outliers_pez$surface))), ]
 
 
 sin_outliers <- data.frame(cbind(superf_rata=sin_outliers_rata$surface,
                                  superf_pez=sin_outliers_pez$surface))
+
+#number of rows of result is not a multiple of vector length (arg 2)
 ```
 
 Medidas para rata sin outliers
