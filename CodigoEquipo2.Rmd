@@ -3,7 +3,7 @@ title: "Código Equipo 2"
 output: html_notebook
 ---
 
-#Diseño
+## Diseño
 
 Pregunta de investigación: ¿Los niveles de ARN de los genes de la proteína básica de mielina (MBP) o de la proteína proteolipídica de mielina (PLP1) se encuentran disminuidos en la sustancia blanca del lóbulo parietal derecho en demencia de tipo Alzheimer?
 
@@ -32,7 +32,7 @@ Son 27 sin AD ni TBI, pero se eliminaron 13 cuya información era del hemisferio
 
 ---
 
-#Código
+## Código
   
 (Previamente descargamos los datos de la página web:
 <https://aging.brain-map.org/download/index>
@@ -40,7 +40,7 @@ y extrajimos *fpkm_table_normalized.csv* de la carpeta comprimida)
   
   
 ## Cargar bibliotecas:
-```{r message=FALSE, warning=FALSE}
+```{r setup, message=FALSE, warning=FALSE}
 library(NeurocienciasIntroData)
 library(data.table)
 library(dplyr)
