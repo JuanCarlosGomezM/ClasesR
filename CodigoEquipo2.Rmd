@@ -734,8 +734,10 @@ Ocultaremos el outlier y la leyenda del color de rellenado, centraremos el títu
 y ésta vez pondremos el asterisco de significancia usando stat_compare_means
 del paquete ggpubr.
 
-(Los 2 números al final de cada código de colores
-indican la transparencia del 00 al 99)
+(Si se agregan 2 números al final de cada código de colores
+indican la transparencia del 00 al 99,
+el decimal después del código indica cuánto se va a aclarar usando lighten del
+paquete colorspace, sin modificar la transparencia)
 ```{r}
 Todos$dsm_iv_clinical_diagnosis <- recode_factor(Todos$dsm_iv_clinical_diagnosis,
                                  "Alzheimer's Disease Type" = "Demencia tipo AD", 
@@ -746,16 +748,28 @@ Todos$dsm_iv_clinical_diagnosis <- factor(Todos$dsm_iv_clinical_diagnosis,
 
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   ggplot(aes(dsm_iv_clinical_diagnosis,value,fill = dsm_iv_clinical_diagnosis)) +
-  geom_boxplot(outlier.shape = NA) +
+  geom_boxplot(outlier.shape = NA, size = 0.71, fatten = 1) +
   stat_summary(fun=mean, geom = "point", shape = 16, size = 2.5, color = "red") +
-  scale_fill_manual(values = c("#D184C995", "#6684C995")) +
-  labs(x = "Diagnóstico DSM-IV", y = "ARN normalizado (FPKM)", fill = "Diagnóstico DSM-IV") +
+  scale_fill_manual(values = c(colorspace::lighten("#D184C9", 0.5),
+                               colorspace::lighten("#6684C9", 0.5))) +
+  labs(x = "Diagnóstico DSM-IV", y = "ARN normalizado (FPKM)",
+       fill = "Diagnóstico DSM-IV") +
   ggtitle("Niveles de ARN en sustancia blanca de lóbulo parietal derecho") +
   ylim(0,7500) + facet_grid(~gene_symbol) +
-  theme(panel.spacing.x = unit(2, "lines"),legend.position = "none",
-        plot.title = element_text(hjust = 0.5)) +
+  theme(panel.spacing.x = unit(2, "lines"),
+        legend.position = "none",
+        plot.title = element_text(hjust = 0.7),
+        panel.background = element_rect(fill = "white", colour = "gray",
+                                size = 0.5, linetype = "solid"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "gray"), 
+        panel.grid.minor = element_line(size = 0.5, linetype = 'solid',
+                                colour = "gray"),
+        axis.text = element_text(size = 10, color = "black")) +
+  coord_cartesian(ylim = c(0,7000)) +
   ggpubr::stat_compare_means(method = "t.test", label = "p.signif",
-                             hide.ns = TRUE, label.y = 5500, label.x.npc = 0.99)
+                             hide.ns = TRUE, label.y = 5500,
+                             label.x.npc = 0.985, size = 6)
 
 
 ```
@@ -776,6 +790,7 @@ citation(package = "car")
 citation(package = "fitdistrplus")
 citation(package = "effectsize")
 citation(package = "ggsignif")
+citation(package = "colorspace")
 citation(package = "ggpubr")
 ```
 
