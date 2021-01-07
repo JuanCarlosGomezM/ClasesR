@@ -2,6 +2,37 @@
 title: "Código Equipo 2"
 output: html_notebook
 ---
+
+#Diseño
+
+Pregunta de investigación: ¿Los niveles de ARN de los genes de la proteína básica de mielina (MBP) o de la proteína proteolipídica de mielina (PLP1) se encuentran disminuidos en la sustancia blanca del lóbulo parietal derecho en demencia de tipo Alzheimer?
+
+Hipótesis: Si la muestra analizada proviene de un donador diagnosticado con demencia tipo Alzheimer, entonces los niveles de ARN de MBP o PLP1 se encontrarán disminuidos respecto a donadores sin diagnóstico de demencia.
+
+Objetivos: Comparar las unidades de secuenciación de ARN (FPKM) normalizadas de MBP y PLP1 en sustancia blanca del lóbulo parietal derecho obtenidas de donadores con diagnóstico de demencia de tipo Alzheimer, con las FPKM de MBP y PLP1 de sustancia blanca del lóbulo parietal derecho obtenidas de donadores sin diagnóstico de demencia.
+
+Cabe notar que se eligió el lóbulo parietal derecho por una restricción logística-metodológica, ya que solamente se tienen muestras de los lóbulos parietales para la materia blanca y del lóbulo parietal derecho es del que se tienen más mediciones.
+
+Variable independiente: Diagnóstico del DSM-IV de demencia de tipo Alzheimer o sin demencia.
+Variables dependientes: Unidades de secuenciación de ARN (FPKM) normalizadas de MBP y de PLP1.
+
+Grupo experimental: 
+Criterio de inclusión → Presenta diagnóstico de demencia de tipo Alzheimer.
+Criterios de exclusión → Presenta traumatismo craneoencefálico (TBI) y aquellos sin datos de la cuantificación de ARN de MBP o PLP1 en sustancia blanca en hemisferio derecho. 
+Al aplicar los criterios de inclusión y exclusión la muestra es de 13 sujetos.
+
+Son 16 con AD sin TBI, pero se eliminó 1 que no tenía los valores para ninguno de los genes de nuestro interés y se eliminaron 2 que eran del hemisferio izquierdo, quedando 13.
+
+Grupo control:
+Criterio de inclusión → No presenta diagnóstico de demencia.
+Criterio de exclusión → Presenta traumatismo craneoencefálico (TBI)  y aquellos sin datos de la cuantificación de ARN de MBP o PLP1 en sustancia blanca en hemisferio derecho. 
+Al aplicar los criterios de inclusión y exclusión la muestra es de 13 sujetos.
+
+Son 27 sin AD ni TBI, pero se eliminaron 13 cuya información era del hemisferio izquierdo y se eliminó un sujeto del que no se tienen los valores para PLP1, quedando 13.
+
+---
+
+#Código
   
 (Previamente descargamos los datos de la página web:
 <https://aging.brain-map.org/download/index>
