@@ -799,8 +799,8 @@ stat.test <- Todos %>%
 
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   ggplot(aes(dsm_iv_clinical_diagnosis,value)) +
-  geom_boxplot(aes(fill = dsm_iv_clinical_diagnosis), outlier.shape = NA, size = 0.71, fatten = 1) +
-  stat_pvalue_manual(stat.test, label = "p.signif", y.position = 7000, size = 7) +
+  geom_boxplot(aes(fill = dsm_iv_clinical_diagnosis), size = 0.71, fatten = 1) +
+  ggpubr::stat_pvalue_manual(stat.test, label = "p.signif", y.position = 7000, size = 7) +
   stat_summary(fun = mean, geom = "point", shape = 16, size = 2.5, color = "red") +
   scale_fill_manual(values = c(colorspace::lighten("#D184C9", 0.5), colorspace::lighten("#6684C9", 0.5))) +
   labs(
@@ -830,6 +830,7 @@ para los paquetes, usamos citation(package = "Ejemplo")
 citation()
 citation(package = "NeurocienciasIntroData")
 citation(package = "data.table")
+citation(package = "here")
 citation(package = "dplyr")
 citation(package = "ggplot2")
 citation(package = "pwr")
@@ -840,5 +841,6 @@ citation(package = "effectsize")
 citation(package = "ggsignif")
 citation(package = "colorspace")
 citation(package = "ggpubr")
+citation(package = "rstatix")
 ```
 
