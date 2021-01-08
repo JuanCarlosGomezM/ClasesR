@@ -45,6 +45,10 @@ library(NeurocienciasIntroData)
 library(data.table)
 library(dplyr)
 library(ggplot2)
+library(here)
+tbi_file <- here("fpkm_table_normalized.csv")
+processed_rna_file <- here("rna_data.csv")
+
 ```
 
 ---
@@ -53,16 +57,18 @@ library(ggplot2)
 ## Elegir el archivo con los datos a ocupar:
 En ventana emergente se debe buscar el archivo *fpkm_table_normalized.csv*.
 ```{r eval=FALSE}
-tbi_file <- choose.files()
+if(!exists('tbi_file')) {
+  tbi_file <- file.choose()
+}
 ```
   
   
 ### Creamos la variable *normalized.rna.measures*
 Cambiamos el nombre de las columnas para facilitar su manipulación.
+
 ```{r eval=FALSE}
 normalized.rna.measures <- fread(tbi_file)
 setnames(normalized.rna.measures, "gene_id \\ rnaseq_profile_id", "gene_id")
-
 normalized.rna.measures <- melt(normalized.rna.measures, id.vars = "gene_id",
   variable.name = "rnaseq_profile_id")
 ```
@@ -71,7 +77,7 @@ normalized.rna.measures <- melt(normalized.rna.measures, id.vars = "gene_id",
 ### Creamos un archivo csv llamado *rna_data.csv*
 Si limpiamos nuestro ambiente podemos simplemente leer este archivo de nuevo.
 ```{r eval=FALSE}
-fwrite(normalized.rna.measures, "rna_data.csv", row.names = F)
+  fwrite(normalized.rna.measures, "rna_data.csv", row.names = F)
 ```
 
 ---
@@ -80,7 +86,14 @@ fwrite(normalized.rna.measures, "rna_data.csv", row.names = F)
 ### Para leer el archivo rna_data.csv:
 En ventana emergente se debe buscar el archivo *rna_data.csv*.
 ```{r}
-normalized.rna.measures <- fread(choose.files())
+if(!exists('normalized.rna.measures')) {
+  if(!exists('processed_rna_file')) {
+    normalized.rna.measures <- fread(file.choose())
+  } else {
+    normalized.rna.measures <- fread(processed_rna_file)
+  }
+}
+
 ```
 
 ---
