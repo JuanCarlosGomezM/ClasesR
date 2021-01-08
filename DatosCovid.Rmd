@@ -1,0 +1,71 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r setup}
+library(NeurocienciasIntroData)
+library(ggplot2)
+library(dplyr)
+```
+
+echo=FALSE hace que al ver el preview solamente se vea el output, no el código
+```{r echo=FALSE}
+mi_covid <- datos.abiertos.covid
+mi_covid
+```
+
+```{r}
+str(mi_covid)
+```
+```{r}
+unique(mi_covid$SEXO)
+```
+```{r}
+mi_covid$SEXO <- factor(
+  mi_covid$SEXO,
+  levels = c(1, 2, 99),
+  labels = c("Mujeres","Hombres", "No especificado")
+  )
+
+mi_covid$RESULTADO <- factor(
+  mi_covid$RESULTADO,
+  levels = c(1, 2, 3),
+  labels = c("Positivo", "Negativo", "Pendiente")
+)
+
+mi_covid$TIPO_PACIENTE <- factor(
+  mi_covid$TIPO_PACIENTE,
+  levels = c(1, 2, 99),
+  labels = c("Ambulatorio", "Hospitalizado", "No especificado")
+)
+```
+
+```{r}
+pacientes <- mi_covid[,c("FECHA_INGRESO", "SEXO", "RESULTADO", "TIPO_PACIENTE")]
+pacientes
+```
+
+```{r}
+summary(pacientes)
+```
+
+```{r}
+pacientes %>% 
+  filter(
+    RESULTADO == "Positivo") %>% 
+  ggplot(aes(x = FECHA_INGRESO, fill = SEXO)) +
+    geom_bar(alpha = 0.7, position = "dodge") +
+    theme_minimal() + facet_wrap(~TIPO_PACIENTE)
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
