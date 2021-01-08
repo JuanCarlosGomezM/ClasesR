@@ -46,6 +46,7 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 library(here)
+library(rstatix)
 tbi_file <- here("fpkm_table_normalized.csv")
 processed_rna_file <- here("rna_data.csv")
 
@@ -790,33 +791,34 @@ Todos$dsm_iv_clinical_diagnosis <- recode_factor(Todos$dsm_iv_clinical_diagnosis
 Todos$dsm_iv_clinical_diagnosis <- factor(Todos$dsm_iv_clinical_diagnosis,
                                           levels = c("Sin Demencia", "Demencia tipo AD"))
 
+stat.test <- Todos %>% 
+  group_by(gene_symbol) %>% 
+  t_test(value ~ dsm_iv_clinical_diagnosis) %>%
+  add_significance() %>%
+  filter(p.signif != "ns")
+
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
-  ggplot(aes(dsm_iv_clinical_diagnosis,value,fill = dsm_iv_clinical_diagnosis)) +
-  geom_boxplot(outlier.shape = NA, size = 0.71, fatten = 1) +
-  stat_summary(fun=mean, geom = "point", shape = 16, size = 2.5, color = "red") +
-  scale_fill_manual(values = c(colorspace::lighten("#D184C9", 0.5),
-                               colorspace::lighten("#6684C9", 0.5))) +
-  labs(x = "Diagnóstico DSM-IV", y = "ARN normalizado (FPKM)",
-       fill = "Diagnóstico DSM-IV") +
-  ggtitle("Niveles de ARN en sustancia blanca de lóbulo parietal derecho") +
-  ylim(0,7500) + facet_grid(~gene_symbol) +
-  theme(panel.spacing.x = unit(2, "lines"),
-        legend.position = "none",
-        plot.title = element_text(hjust = 0.7),
-        panel.background = element_rect(fill = "white", colour = "gray",
-                                size = 0.5, linetype = "solid"),
-        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "gray"), 
-        panel.grid.minor = element_line(size = 0.5, linetype = 'solid',
-                                colour = "gray"),
-        axis.text = element_text(size = 10, color = "black")) +
-        coord_cartesian(ylim = c(0,7500)) +
-  #ggsignif::geom_signif(comparisons = list(c("Sin Demencia", "Demencia tipo AD")),
-  #test = "t.test", map_signif_level = TRUE)
-  ggpubr::stat_compare_means(method = "t.test", label = "p.signif",
-                             hide.ns = TRUE, comparisons = list(c("Sin Demencia", "Demencia tipo AD")), size = 6)
-#con hide.ns se quita el NS pero queda el bracket.
-#Guardando previamente la localización de donde se quiere poner el bracket, no se genera correctamente el plot.
+  ggplot(aes(dsm_iv_clinical_diagnosis,value)) +
+  geom_boxplot(aes(fill = dsm_iv_clinical_diagnosis), outlier.shape = NA, size = 0.71, fatten = 1) +
+  stat_pvalue_manual(stat.test, label = "p.signif", y.position = 7000, size = 7) +
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 2.5, color = "red") +
+  scale_fill_manual(values = c(colorspace::lighten("#D184C9", 0.5), colorspace::lighten("#6684C9", 0.5))) +
+  labs(
+    title = "Niveles de ARN en sustancia blanca de lóbulo parietal derecho",
+    x = "Diagnóstico DSM-IV",
+    y = "ARN normalizado (FPKM)",
+    fill = "Diagnóstico DSM-IV"
+  ) +
+  facet_grid(~gene_symbol) +
+  theme(
+    panel.spacing.x = unit(2, "lines"),
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.7),
+    panel.background = element_rect(fill = "white", colour = "gray", size = 0.5, linetype = "solid"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "gray"), 
+    panel.grid.minor = element_line(size = 0.5, linetype = 'solid', colour = "gray"), 
+    axis.text = element_text(size = 10, color = "black")
+  )
 
 ```
 
