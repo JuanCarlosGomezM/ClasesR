@@ -46,8 +46,8 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 library(here)
-tbi_file <- here("fpkm_table_normalized.csv")
-processed_rna_file <- here("rna_data.csv")
+tbi_file <- here("fpkm_table_normalized.csv.gz")
+processed_rna_file <- here("rna_data.csv.gz")
 
 ```
 
