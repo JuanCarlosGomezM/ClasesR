@@ -16,6 +16,8 @@ Cabe notar que se eligió el lóbulo parietal derecho por una restricción logí
 Variable independiente: Diagnóstico del DSM-IV de demencia de tipo Alzheimer o sin demencia.
 Variables dependientes: Unidades de secuenciación de ARN (FPKM) normalizadas de MBP y de PLP1.
 
+De los 107 sujetos de la base de datos, elegimos:
+
 Grupo experimental: 
 Criterio de inclusión → Presenta diagnóstico de demencia de tipo Alzheimer.
 Criterios de exclusión → Presenta traumatismo craneoencefálico (TBI) y aquellos sin datos de la cuantificación de ARN de MBP o PLP1 en sustancia blanca en hemisferio derecho. 
@@ -41,13 +43,13 @@ y extrajimos *fpkm_table_normalized.csv* de la carpeta comprimida)
   
 ## Cargar bibliotecas:
 ```{r setup, message=FALSE, warning=FALSE}
-library(NeurocienciasIntroData)
+library(R.utils)
 library(data.table)
+library(NeurocienciasIntroData)
 library(dplyr)
 library(ggplot2)
-library(here)
-tbi_file <- here("fpkm_table_normalized.csv.gz")
-processed_rna_file <- here("rna_data.csv.gz")
+tbi_file <- here::here("fpkm_table_normalized.csv.gz")
+processed_rna_file <- here::here("rna_data.csv.gz")
 ```
 
 ---
@@ -113,6 +115,11 @@ donor.info.dt <- donor.information
 setDT(donor.info.dt)
 donor.info.dt[, .(donor_id, ever_tbi_w_loc, dsm_iv_clinical_diagnosis, braak)]
 ```
+  
+```{r}
+count(donor.info.dt)
+```
+Tenemos 107 donadores  
   
   
 ### Guardamos la información pertinente de los genes y de las muestras
@@ -791,8 +798,8 @@ Todos$dsm_iv_clinical_diagnosis <- factor(Todos$dsm_iv_clinical_diagnosis,
 
 stat.test <- Todos %>% 
   group_by(gene_symbol) %>% 
-  t_test(value ~ dsm_iv_clinical_diagnosis) %>%
-  add_significance() %>%
+  rstatix::t_test(value ~ dsm_iv_clinical_diagnosis) %>%
+  rstatix::add_significance() %>%
   filter(p.signif != "ns")
 
 Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
@@ -827,6 +834,7 @@ para los paquetes, usamos citation(package = "Ejemplo")
 ```{r}
 citation()
 citation(package = "NeurocienciasIntroData")
+citation(package = "R.utils")
 citation(package = "data.table")
 citation(package = "here")
 citation(package = "dplyr")
