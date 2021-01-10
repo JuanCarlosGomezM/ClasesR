@@ -808,6 +808,7 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   ggpubr::stat_pvalue_manual(stat.test, label = "p.signif", y.position = 7000, size = 7) +
   stat_summary(fun = mean, geom = "point", shape = 16, size = 2.5, color = "red") +
   scale_fill_manual(values = c(colorspace::lighten("#D184C9", 0.5), colorspace::lighten("#6684C9", 0.5))) +
+  #colorspace::lighten("gray", 0.6), colorspace::lighten("black", 0.7)
   labs(
     title = "Niveles de ARN en sustancia blanca de lóbulo parietal derecho",
     x = "Diagnóstico DSM-IV",
