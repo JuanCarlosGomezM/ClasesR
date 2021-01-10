@@ -1,0 +1,251 @@
+---
+title: "Bioestadística"
+author: "Chávez Blancas Isaac, Gómez Mendoza Juan Carlos, Lora Marín Obed Ricardo, Salazar Castro Marelly"
+output: html_notebook
+---
+
+Usaremos el dataset iris
+
+Cargamos los paquetes y el dataset que usaremos
+```{r warning=FALSE}
+library(dplyr)
+library(ggplot2)
+data(iris)
+```
+
+
+## 1.- Exploración para entender los datos
+```{r}
+dim(iris)
+```
+150 observaciones (filas) y 5 variables (columnas)
+
+
+```{r}
+names(iris)
+```
+Las columnas se llaman: "Sepal.Length" "Sepal.Width"  "Petal.Length" "Petal.Width"  "Species" 
+
+
+```{r}
+head(iris)
+```
+Podemos ver que *los datos son numéricos continuos*,
+*excepto la variable "Species", la cual es categórica nominal*
+
+
+```{r}
+str(iris)
+```
+La variable Species está correctamente codificada como factor 
+
+
+```{r}
+
+unique(iris$Species)
+```
+Las 3 especies son: setosa, versicolor y virginica
+
+## 2.- Establecer la hipótesis
+Con esta información, compararemos la longitud de sépalo de setosa y virginica.
+*H0: no hay diferencia entre las medias de la longitud de sépalo. u1=u2*
+*HA o H1: las medias de la longitud de sépalo son diferentes.  u1 != u2*
+
+Nivel de significancia, alfa = 0.05
+
+
+## Sacaremos las medidas de tendencia central y de dispersión de Sepal.Length
+```{r}
+options(scipen=1000000) #para ver más decimales
+
+iris %>% group_by(Species) %>% filter(Species == "setosa" |
+                                        Species == "virginica") %>%
+  summarise(media = mean(Sepal.Length), mediana = median(Sepal.Length),
+            varianza = var(Sepal.Length),
+            desviacion_estandar = sd(Sepal.Length),
+            coeficiente_variacion = (sd(Sepal.Length) / mean(Sepal.Length)),
+            rango_intercuartil = IQR(Sepal.Length),
+            error_estandar = (sd(Sepal.Length) / sqrt(length(Sepal.Length))))
+```
+
+Para calcular las modas
+```{r}
+Moda <- function(x) {
+  valores <- unique(x)
+  tab <- tabulate(match(x, valores))
+  valores[tab == max(tab)]} #con esta función podremos calcular la moda
+
+iris %>% group_by(Species) %>% filter(Species == "setosa" |
+                                        Species == "virginica") %>%
+  summarise(modas = Moda(Sepal.Length))
+```
+Podemos ver que para la longitud del sépalo de setosa es bimodal
+
+
+## Separaremos la información de las especies
+```{r}
+setosa <- iris %>% filter(Species == "setosa") %>% select(Sepal.Length)
+
+virginica <- iris %>% filter(Species  == "virginica") %>% select(Sepal.Length)
+```
+
+
+*Intervalos de confianza del 95%*
+De la media de setosa:
+```{r}
+t.test(setosa$Sepal.Length)$conf.int
+```
+Intervalo de la media de setosa: de 4.905824 a 5.106176
+
+
+De la media de virginica:
+```{r}
+t.test(virginica$Sepal.Length)$conf.int
+```
+Intervalo de la media de virginica: de 6.407285 a 6.768715
+
+
+## 3.- Calcular el parámetro estimado (estadístico)
+calculamos la *diferencia de las medias muestrales*
+```{r}
+mean(setosa$Sepal.Length)-mean(virginica$Sepal.Length)
+```
+
+## 4.- Comprobaremos las condiciones (supuestos) para la prueba t
+
+### Normalidad
+Haremos un histograma para visualizar los datos
+y darnos una idea de cómo están distribuidos
+```{r}
+iris %>% filter(Species == "setosa" | Species == "virginica") %>%
+  ggplot(aes(Sepal.Length)) +
+  geom_histogram(aes(y = ..density.., colour = Species, fill = Species)) +
+  facet_grid(~ Species) + theme_minimal() + theme(legend.position = "none")
+  
+```
+
+Haremos q-q plots con la función qqPlot del paquete car
+```{r}
+car::qqPlot(setosa$Sepal.Length, distribution= "norm",
+            xlab = "Cuantiles teóricos", ylab = "cuantiles de setosa")
+
+car::qqPlot(virginica$Sepal.Length, distribution= "norm",
+            xlab = "Cuantiles teóricos", ylab = "cuantiles de virginica")
+```
+
+Con la función descdist del paquete fitdistrplus
+podemos ver a qué distribuciones se acercan nuestros datos:
+```{r}
+fitdistrplus::descdist(setosa$Sepal.Length, boot = 1000)
+
+fitdistrplus::descdist(virginica$Sepal.Length, boot = 1000)
+```
+En ambos casos los datos se acercan a una distribución normal
+
+
+Test de normalidad (prueba de bondad de ajuste para distribución normal):
+```{r}
+shapiro.test(setosa$Sepal.Length)
+
+shapiro.test(virginica$Sepal.Length)
+```
+Las 2 resultaron con p>alfa, por lo tanto,
+*no se rechaza la hipótesis nula de que las muestras son normales*.
+
+
+### Homogeneidad de varianza
+Calculamos los cuantiles de la longitud de sépalo de setosa
+```{r}
+summary(setosa$Sepal.Length)
+```
+
+Calculamos los cuantiles de la longitud de sépalo de virginica
+```{r}
+summary(virginica$Sepal.Length)
+```
+
+
+Los representamos mediante boxplots
+```{r}
+iris %>% filter(Species == "setosa" | Species == "virginica") %>%
+  ggplot(aes(Species, Sepal.Length)) +
+  geom_boxplot(aes(x = Species, y = Sepal.Length, colour = Species)) +
+  geom_jitter() + #Al poner jitter nos da una mejor idea de la dispersión
+  theme_minimal() + theme(legend.position = "none")
+```
+Parece que virgínica tiene mayor dispersión,
+un rango intercuartil más amplio e incluso un outlier.
+
+
+Test de homocedasticidad:
+```{r}
+bartlett.test(list(setosa$Sepal.Length, virginica$Sepal.Length))
+```
+p<alfa,
+*se rechaza la hipótesis nula de que las muestras tienen varianzas iguales*.
+La longitud de sépalo es una variable heterocedástica
+y no se puede hacer una t de Student;
+sin embargo, se puede hacer una prueba t para varianzas desiguales,
+conocida como t de Welch.
+
+## 5.- Recordar el nivel de significancia
+*alfa = 0.05*
+Error tipo I: Error de rechazar la H0 cuando es verdadera
+Error tipo II: Error de no rechazar la H0 cuando es falsa
+
+## 6.- Cálculo del p-value mediante la prueba t de Welch
+```{r}
+t.test(
+  x           = setosa$Sepal.Length,
+  y           = virginica$Sepal.Length,
+  alternative = "two.sided",
+  mu          = 0,
+  var.equal   = FALSE,
+  conf.level  = 0.95
+)
+```
+el p-value fue < 0.00000000000000022 
+p<alfa, *hay diferencia estadísticamente significativa*
+en la media de la longitud de sépalo de setosa y virginica
+
+El intervalo de confianza de la diferencia de las medias
+resultó de  -1.78676 a -1.37724,
+siendo negativo porque la media de setosa es menor que la media de virginica.
+La diferencia de las medias se había calculado previamente,
+siendo: 5.006-6.588=-1.582
+
+
+Error estándar de la diferencia de las medias:
+```{r}
+t.test(
+  x           = setosa$Sepal.Length,
+  y           = virginica$Sepal.Length,
+  alternative = "two.sided",
+  mu          = 0,
+  var.equal   = FALSE,
+  conf.level  = 0.95
+)$stderr
+```
+
+
+## 7.- Cálculo del tamaño del efecto
+Calcularemos la d de Cohen con la función cohen.d() del paquete effsize
+```{r}
+effsize::cohen.d(setosa$Sepal.Length, virginica$Sepal.Length, paired = FALSE)
+```
+d= -3.077239, siendo el signo negativo porque se tomó
+como referencia la longitud de sépalo de virginica
+que es mayor que la de setosa,
+pero el signo solamemente indica "la dirección del efecto".
+
+## 8.- Conclusión
+
+Dado que el valor de p es menor que alfa, se dispone de evidencia suficiente
+para considerar que existe una diferencia entre la longitud de sépalo promedio
+de setosa y la de virginica. El tamaño de efecto medido por d-Cohen tomando
+los valores absolutos es grande (d>0.8).
+
+Esto indica que las muestras analizadas provienen de poblaciones diferentes
+ya que la especie setosa tiene una longitud de sépalo menor que la especie virginica.
+
+
