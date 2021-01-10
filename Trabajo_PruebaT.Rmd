@@ -173,7 +173,7 @@ iris %>% filter(Species == "setosa" | Species == "virginica") %>%
   geom_jitter() + #Al poner jitter nos da una mejor idea de la dispersión
   theme_minimal() + theme(legend.position = "none")
 ```
-Parece que virgínica tiene mayor dispersión,
+Parece que virginica tiene mayor dispersión,
 un rango intercuartil más amplio e incluso un outlier.
 
 
