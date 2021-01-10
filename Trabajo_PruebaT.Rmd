@@ -4,6 +4,9 @@ author: "Chávez Blancas Isaac, Gómez Mendoza Juan Carlos, Lora Marín Obed Ric
 output: html_notebook
 ---
 
+
+primer intento de RIck :V jajaja a ve si sale 
+
 Usaremos el dataset iris
 
 Cargamos los paquetes y el dataset que usaremos
