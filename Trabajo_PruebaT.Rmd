@@ -236,7 +236,7 @@ effsize::cohen.d(setosa$Sepal.Length, virginica$Sepal.Length, paired = FALSE)
 d= -3.077239, siendo el signo negativo porque se tomó
 como referencia la longitud de sépalo de virginica
 que es mayor que la de setosa,
-pero el signo solamemente indica "la dirección del efecto".
+pero el signo solamemente indica la "dirección" del efecto.
 
 ## 8.- Conclusión
 
