@@ -109,11 +109,17 @@ normalized.rna.measures[, rnaseq_profile_id := as.factor(rnaseq_profile_id)]
 ```
   
   
+```{r}
+head(donor.information)
+```
+  
+  
 ### Guardamos la información pertinente de los donadores
 ```{r}
 donor.info.dt <- donor.information
 setDT(donor.info.dt)
-donor.info.dt[, .(donor_id, ever_tbi_w_loc, dsm_iv_clinical_diagnosis, braak)]
+donor.info.dt[, .(donor_id, sex, age, ever_tbi_w_loc,
+                  dsm_iv_clinical_diagnosis, braak)]
 ```
   
 ```{r}
@@ -154,7 +160,7 @@ Nos aseguramos de que correspondan usando la etiqueta *donor_id*.
 ```{r}
 rna.measure.genes <- merge(
   donor.information[, .(
-    donor_id = as.factor(donor_id), ever_tbi_w_loc, braak,
+    donor_id = as.factor(donor_id), sex, age, ever_tbi_w_loc, braak,
     dsm_iv_clinical_diagnosis )], rna.measure.genes,
   by = "donor_id")
 ```
@@ -203,7 +209,8 @@ PLP1_AD_sin_TBI <- subset(MBP_PLP1_FWM,
 ### Quitamos algunas columnas que se repetirían al unir los subsets
 ```{r}
 PLP1_AD_sin_TBI <- select(PLP1_AD_sin_TBI, -dsm_iv_clinical_diagnosis, 
-                        -hemisphere, -braak, -ever_tbi_w_loc, -structure_acronym)
+                        -hemisphere, -braak, -ever_tbi_w_loc,
+                        -structure_acronym, -sex, -age)
 ```
   
   
@@ -218,7 +225,7 @@ grupo_AD <- merge(PLP1_AD_sin_TBI, MBP_AD_sin_TBI, by = "donor_id",
   
 ### Por último, elegimos solamente los datos que ocuparemos
 ```{r}
-grupo_AD <- grupo_AD[, .(donor_id, dsm_iv_clinical_diagnosis,
+grupo_AD <- grupo_AD[, .(donor_id, sex, age, dsm_iv_clinical_diagnosis,
                          ever_tbi_w_loc, structure_acronym,
                          hemisphere, value.PLP1, value.MBP, braak)]
 count(grupo_AD)
@@ -274,7 +281,8 @@ count(MBP_control)
 ### Quitamos algunas columnas que se repetirían al unir los subsets
 ```{r}
 MBP_control <- select(MBP_control, -dsm_iv_clinical_diagnosis,
-                    -hemisphere, -braak, -ever_tbi_w_loc, -structure_acronym)
+                    -hemisphere, -braak, -ever_tbi_w_loc,
+                    -structure_acronym, -age, -sex)
 ```
   
   
@@ -290,9 +298,10 @@ grupo_control <- merge(PLP1_control, MBP_control, by = "donor_id",
 ### Por último, elegimos solamente los datos que ocuparemos
 Resultado: grupo_control: 13 sujetos sin AD ni TBI, unidos por el *donor_id*.
 ```{r}
-grupo_control <- grupo_control[, .(donor_id, dsm_iv_clinical_diagnosis,
+grupo_control <- grupo_control[, .(donor_id, sex, age, dsm_iv_clinical_diagnosis,
                                    ever_tbi_w_loc, structure_acronym,
-                                   hemisphere, value.PLP1, value.MBP, braak)]
+                                   hemisphere, value.PLP1, value.MBP,
+                                   braak)]
 count(grupo_control)
 ```
 Nuestro grupo control tiene mismo número que el grupo AD, por lo que
@@ -790,11 +799,11 @@ el decimal después del código indica cuánto se va a aclarar usando lighten de
 paquete colorspace, sin modificar la transparencia)
 ```{r}
 Todos$dsm_iv_clinical_diagnosis <- recode_factor(Todos$dsm_iv_clinical_diagnosis,
-                                 "Alzheimer's Disease Type" = "Demencia tipo AD", 
+                                 "Alzheimer's Disease Type" = "Demencia tipo EA", 
                                 "No Dementia" = "Sin Demencia")
 
 Todos$dsm_iv_clinical_diagnosis <- factor(Todos$dsm_iv_clinical_diagnosis,
-                                          levels = c("Sin Demencia", "Demencia tipo AD"))
+                                          levels = c("Sin Demencia", "Demencia tipo EA"))
 
 stat.test <- Todos %>% 
   group_by(gene_symbol) %>% 
@@ -806,9 +815,10 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   ggplot(aes(dsm_iv_clinical_diagnosis,value)) +
   geom_boxplot(aes(fill = dsm_iv_clinical_diagnosis), size = 0.71, fatten = 1) +
   ggpubr::stat_pvalue_manual(stat.test, label = "p.signif", y.position = 7000, size = 7) +
-  stat_summary(fun = mean, geom = "point", shape = 16, size = 2.5, color = "red") +
-  scale_fill_manual(values = c(colorspace::lighten("#D184C9", 0.5), colorspace::lighten("#6684C9", 0.5))) +
+  stat_summary(fun = mean, geom = "point", shape = 1, size = 2.5, color = "black") +
+  scale_fill_manual(values = c(colorspace::lighten("gray", 0.6), colorspace::lighten("black", 0.7))) +
   #colorspace::lighten("gray", 0.6), colorspace::lighten("black", 0.7)
+  #colorspace::lighten("#D184C9", 0.5), colorspace::lighten("#6684C9", 0.5))
   labs(
     title = "Niveles de ARN en sustancia blanca de lóbulo parietal derecho",
     x = "Diagnóstico DSM-IV",
