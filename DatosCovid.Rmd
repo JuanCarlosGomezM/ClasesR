@@ -55,12 +55,23 @@ summary(pacientes)
 ```
 
 ```{r}
-pacientes %>% 
-  filter(
-    RESULTADO == "Positivo") %>% 
+p <- pacientes %>% 
+  filter(RESULTADO == "Positivo") %>% 
   ggplot(aes(x = FECHA_INGRESO, fill = SEXO)) +
     geom_bar(alpha = 0.7, position = "dodge") +
-    theme_minimal() + facet_wrap(~TIPO_PACIENTE)
+    labs(title = "Casos COVID positivos por fecha",
+         x = "Fecha de ingreso",
+         y = "Número de casos") +
+    theme_minimal()
+```
+
+```{r}
+p
+```
+
+
+```{r}
+p + facet_wrap(~TIPO_PACIENTE)
 ```
 
 
