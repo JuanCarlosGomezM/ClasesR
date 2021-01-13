@@ -249,6 +249,17 @@ como referencia la longitud de sépalo de virginica
 que es mayor que la de setosa,
 pero el signo solamemente indica la "dirección" del efecto.
 
+
+## Repetiremos el análisis pero esta vez para una cola
+
+*Nuevas hipótesis:*
+*H0: no hay diferencia entre las medias de la longitud de sépalo. u1=u2*
+*HA o H1: ls media de la longitud de sépalo de setosa es menor que la de virginica.  u1 < u2*
+```{r}
+
+```
+
+
 ## 8.- Conclusión
 
 Dado que el valor de p es menor que alfa, se dispone de evidencia suficiente
