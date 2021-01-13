@@ -5,7 +5,9 @@ output: html_notebook
 ---
 
 
-primer intento de RIck :V jajaja a ve si sale 
+### Podemos buscar si hay correlación entre la longitud del pétalo y el ancho del pétalo en una especie
+### Podemos hacer anova de una vía comparando el ancho del sépalo en las 3 especies pero requiere análisis post-hoc
+### En cuanto a la redacción del reporte a entregar, debe quedar claro: Título, Objetivos, Hipótesis, Métodos de recolección de la muestra, Cómo se evitaron sesgos y Conclusión
 
 Usaremos el dataset iris
 
@@ -55,6 +57,12 @@ Con esta información, compararemos la longitud de sépalo de setosa y virginica
 *HA o H1: las medias de la longitud de sépalo son diferentes.  u1 != u2*
 
 Nivel de significancia, alfa = 0.05
+
+
+## Gráfico exploratorio
+```{r}
+plot(iris)
+```
 
 
 ## Sacaremos las medidas de tendencia central y de dispersión de Sepal.Length
