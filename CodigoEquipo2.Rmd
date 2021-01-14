@@ -797,7 +797,7 @@ del paquete ggpubr.
 indican la transparencia del 00 al 99,
 el decimal después del código indica cuánto se va a aclarar usando lighten del
 paquete colorspace, sin modificar la transparencia)
-```{r}
+```{r fig.retina=10}
 Todos$dsm_iv_clinical_diagnosis <- recode_factor(Todos$dsm_iv_clinical_diagnosis,
                                  "Alzheimer's Disease Type" = "Demencia tipo EA", 
                                 "No Dementia" = "Sin Demencia")
@@ -825,7 +825,7 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
     y = "ARN normalizado (FPKM)",
     fill = "Diagnóstico DSM-IV"
   ) +
-  facet_grid(~gene_symbol) +
+  facet_grid(. ~ gene_symbol) +
   theme(
     panel.spacing.x = unit(2, "lines"),
     legend.position = "none",
