@@ -802,6 +802,7 @@ Todos$dsm_iv_clinical_diagnosis <- recode_factor(Todos$dsm_iv_clinical_diagnosis
                                  "Alzheimer's Disease Type" = "Demencia tipo EA", 
                                 "No Dementia" = "Sin Demencia")
 
+
 Todos$dsm_iv_clinical_diagnosis <- factor(Todos$dsm_iv_clinical_diagnosis,
                                           levels = c("Sin Demencia", "Demencia tipo EA"))
 
@@ -827,14 +828,17 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   ) +
   facet_grid(. ~ gene_symbol) +
   theme(
+    strip.background = element_rect(linetype = "solid"),
+    strip.text.x = element_text(face = "italic"),
     panel.spacing.x = unit(2, "lines"),
     legend.position = "none",
-    plot.title = element_text(hjust = 0.7),
-    panel.background = element_rect(fill = "white", colour = "gray", size = 0.5, linetype = "solid"),
+    plot.title = element_text(hjust = 0.5),
+    panel.background = element_rect(fill = "white", colour = "gray", size = 1, linetype = "solid"),
     panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "gray"), 
     panel.grid.minor = element_line(size = 0.5, linetype = 'solid', colour = "gray"), 
     axis.text = element_text(size = 10, color = "black")
-  )
+  ) +
+  coord_cartesian(ylim = c(0,7500), clip = "off")
 
 ```
 
