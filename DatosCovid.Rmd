@@ -22,9 +22,11 @@ mi_covid
 ```{r}
 str(mi_covid)
 ```
+
 ```{r}
 unique(mi_covid$SEXO)
 ```
+
 ```{r}
 mi_covid$SEXO <- factor(
   mi_covid$SEXO,
@@ -58,20 +60,41 @@ summary(pacientes)
 p <- pacientes %>% 
   filter(RESULTADO == "Positivo") %>% 
   ggplot(aes(x = FECHA_INGRESO, fill = SEXO)) +
-    geom_bar(alpha = 0.7, position = "dodge") +
-    labs(title = "Casos COVID positivos por fecha",
+    geom_bar(position = "dodge") +
+    labs(title = "Casos COVID positivos por tipo de paciente",
          x = "Fecha de ingreso",
          y = "Número de casos") +
-    theme_minimal()
+  scale_fill_brewer(palette = "Set1")+
+    theme_minimal() + facet_grid(. ~ TIPO_PACIENTE)
 ```
 
 ```{r}
-p
+a<-pacientes %>% 
+  filter(RESULTADO == "Positivo", TIPO_PACIENTE == "Ambulatorio") %>% 
+  ggplot(aes(x = FECHA_INGRESO, fill = SEXO)) +
+    geom_bar(alpha = 0.7) +
+    labs(title = "Positivos ambulatorios por sexo",
+         x = "Fecha de ingreso",
+         y = "Número de casos") +
+  scale_fill_brewer(palette = "Set1") +
+    theme_minimal() +  theme(legend.position = "none") + facet_grid(. ~ SEXO)
 ```
 
-
 ```{r}
-p + facet_wrap(~TIPO_PACIENTE)
+b<-pacientes %>% 
+  filter(RESULTADO == "Positivo", TIPO_PACIENTE == "Hospitalizado") %>% 
+  ggplot(aes(x = FECHA_INGRESO, fill = SEXO)) +
+    geom_bar(alpha = 0.7) +
+    labs(title = "Positivos hospitalizados por sexo",
+         x = "Fecha de ingreso",
+         y = "Número de casos") +
+  scale_fill_brewer(palette = "Set1") +
+    theme_minimal() +  theme(legend.position = "none") + facet_grid(. ~ SEXO)
+```
+
+```{r fig.retina=10, fig.height=7, fig.width=11}
+library(patchwork)
+p/(a+b)
 ```
 
 
