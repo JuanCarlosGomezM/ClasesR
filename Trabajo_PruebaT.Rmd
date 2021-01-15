@@ -8,7 +8,7 @@ Estudio: 50 mediciones obtenidas de cada población
 
 ### Podemos buscar si hay correlación entre la longitud del pétalo y el ancho del pétalo en una especie
 ### Podemos hacer anova de una vía comparando el ancho del sépalo en las 3 especies pero requiere análisis post-hoc
-### En cuanto a la redacción del reporte a entregar, debe quedar claro: Título, Objetivos, Hipótesis, Métodos de recolección de la muestra, Cómo se evitaron sesgos y Conclusión
+### En cuanto a la redacción del reporte a entregar, debe quedar claro: Título, Objetivos, Hipótesis, Métodos de recolección de la muestra, Cómo se evitaron sesgos y Conclusión; todo debe ir en el rmd para generar el html
 
 Usaremos el dataset iris
 
