@@ -4,6 +4,7 @@ author: "Chávez Blancas Isaac, Gómez Mendoza Juan Carlos, Lora Marín Obed Ric
 output: html_notebook
 ---
 
+Estudio: 50 mediciones obtenidas de cada población
 
 ### Podemos buscar si hay correlación entre la longitud del pétalo y el ancho del pétalo en una especie
 ### Podemos hacer anova de una vía comparando el ancho del sépalo en las 3 especies pero requiere análisis post-hoc
@@ -12,7 +13,7 @@ output: html_notebook
 Usaremos el dataset iris
 
 ## 'Importamos' datos
-Cargamos los paquetes y el dataset que usaremos
+Cargamos los paquetes y el dataset que usaremos, iris, el cual venía precargado en R
 ```{r warning=FALSE}
 library(dplyr)
 library(ggplot2)
@@ -65,7 +66,7 @@ plot(iris)
 #Análisis descriptivo
 ## 2.- Sacaremos las medidas de tendencia central y de dispersión de Sepal.Length
 ```{r}
-options(scipen=1000000) #para ver más decimales
+options(scipen=1000000)
 
 iris %>% group_by(Species) %>%
   summarise(media = mean(Sepal.Length), mediana = median(Sepal.Length),
@@ -91,7 +92,7 @@ Podemos ver que para la longitud del sépalo de setosa es bimodal y la de versic
 ## 3.- Establecemos la hipótesis
 Con esta información, compararemos la longitud de sépalo de setosa y virginica.
 *H0: no hay diferencia entre las medias de la longitud de sépalo. u1=u2*
-*HA o H1: la media de la longitud de sépalo de setosa es menor que la media de la longitud de sépalo de virgínica.  u1 < u2*
+*HA o H1: las medias de la longitud de sépalo de setosa y virgínica no son iguales.  u1 != u2*
 
 Nivel de significancia, alfa = 0.05
 
@@ -103,8 +104,15 @@ setosa <- iris %>% filter(Species == "setosa") %>% select(Sepal.Length)
 virginica <- iris %>% filter(Species  == "virginica") %>% select(Sepal.Length)
 ```
 
+Contamos las observaciones en cada grupo
+```{r}
+count(setosa)
 
-*Intervalos de confianza del 95%*
+count(virginica)
+```
+n = 50 en cada grupo
+
+*Intervalos de confianza bilaterales del 95%*
 De la media de setosa:
 ```{r}
 t.test(setosa$Sepal.Length)$conf.int
@@ -133,9 +141,15 @@ y darnos una idea de cómo están distribuidos
 ```{r}
 iris %>% filter(Species == "setosa" | Species == "virginica") %>%
   ggplot(aes(Sepal.Length)) +
-  geom_histogram(aes(y = ..density.., colour = Species, fill = Species)) +
+  geom_histogram(aes(colour = Species, fill = Species)) +
   facet_grid(~ Species) + theme_minimal() + theme(legend.position = "none")
-  
+```
+
+```{r}
+iris %>% filter(Species == "setosa" | Species == "virginica") %>%
+  ggplot(aes(Sepal.Length)) +
+  geom_freqpoly(aes(x = Sepal.Length, colour = Species))+
+  theme_minimal()
 ```
 
 Haremos q-q plots con la función qqPlot del paquete car
@@ -146,6 +160,18 @@ car::qqPlot(setosa$Sepal.Length, distribution= "norm",
 car::qqPlot(virginica$Sepal.Length, distribution= "norm",
             xlab = "Cuantiles teóricos", ylab = "cuantiles de virginica")
 ```
+
+Estos puntos escalonados nos llamaron la atención, por lo que decidimos ver los valores numéricos ordenados
+```{r}
+arrange(setosa,Sepal.Length)
+```
+Los puntos escalonados de los gráficos de cuantiles se deben a que *varios números se repiten mucho*
+
+
+```{r}
+arrange(virginica,Sepal.Length)
+```
+
 
 Con la función descdist del paquete fitdistrplus
 podemos ver a qué distribuciones se acercan nuestros datos:
@@ -184,11 +210,22 @@ Los representamos mediante boxplots
 iris %>% filter(Species == "setosa" | Species == "virginica") %>%
   ggplot(aes(Species, Sepal.Length)) +
   geom_boxplot(aes(x = Species, y = Sepal.Length, colour = Species)) +
-  geom_jitter() + #Al poner jitter nos da una mejor idea de la dispersión
   theme_minimal() + theme(legend.position = "none")
 ```
 Parece que virginica tiene mayor dispersión,
 un rango intercuartil más amplio e incluso un outlier.
+
+
+También los representamos mediante gráficos de violín
+```{r}
+iris %>% filter(Species == "setosa" | Species == "virginica") %>%
+  ggplot(aes(Species, Sepal.Length)) +
+  geom_violin(aes(x = Species, y = Sepal.Length, fill = Species))+
+  geom_point()+
+  theme_minimal() + theme(legend.position = "none")
+```
+
+
 
 
 Test de homocedasticidad:
@@ -207,13 +244,12 @@ conocida como t de Welch.
 Error tipo I: Error de rechazar la H0 cuando es verdadera
 Error tipo II: Error de no rechazar la H0 cuando es falsa
 
-## 6.- Cálculo del p-value mediante la prueba t de Welch
+## 6.- Cálculo del p-value mediante la prueba t de Welch para dos colas
 ```{r}
 t.test(
   x           = setosa$Sepal.Length,
   y           = virginica$Sepal.Length,
   alternative = "two.sided",
-  mu          = 0,
   var.equal   = FALSE,
   conf.level  = 0.95
 )
@@ -224,18 +260,18 @@ en la media de la longitud de sépalo de setosa y virginica
 
 El intervalo de confianza de la diferencia de las medias
 resultó de  -1.78676 a -1.37724,
-siendo negativo porque la media de setosa es menor que la media de virginica.
+siendo negativo porque la media de la longitud de sépalo de setosa es menor que
+la media de la longitud de sépalo de virginica.
 La diferencia de las medias se había calculado previamente,
 siendo: 5.006-6.588=-1.582
 
 
-Error estándar de la diferencia de las medias:
+Error estándar de la diferencia de las medias para las dos colas:
 ```{r}
 t.test(
   x           = setosa$Sepal.Length,
   y           = virginica$Sepal.Length,
   alternative = "two.sided",
-  mu          = 0,
   var.equal   = FALSE,
   conf.level  = 0.95
 )$stderr
@@ -257,11 +293,65 @@ pero el signo solamemente indica la "dirección" del efecto.
 
 *Nuevas hipótesis:*
 *H0: no hay diferencia entre las medias de la longitud de sépalo. u1=u2*
-*HA o H1: ls media de la longitud de sépalo de setosa es menor que la de virginica.  u1 < u2*
-```{r}
+*HA o H1: la media de la longitud de sépalo de setosa es menor que la media de la longitud de sépalo de virginica.  u1 < u2*
 
+*Intervalos de confianza unilaterales del 95%* 
+De setosa:
+```{r}
+t.test(setosa$Sepal.Length, alternative = "less")$conf.int
+```
+Límite superior del intervalo unilateral de la media de setosa: 5.089575
+
+De virginica:
+```{r}
+t.test(virginica$Sepal.Length, alternative = "less")$conf.int
+```
+Límite superior del intervalo unilateral de la media de virginica: 6.738767
+
+## Cálculo del p-value mediante la prueba t de Welch para la cola inferior
+```{r}
+t.test(
+  x           = setosa$Sepal.Length,
+  y           = virginica$Sepal.Length,
+  alternative = "less",
+  var.equal   = FALSE,
+  conf.level  = 0.95
+)
 ```
 
+Error estándar de la diferencia de las medias para la cola inferior:
+```{r}
+t.test(
+  x           = setosa$Sepal.Length,
+  y           = virginica$Sepal.Length,
+  alternative = "less",
+  var.equal   = FALSE,
+  conf.level  = 0.95
+)$stderr
+```
+
+### Prueba t para muestras dependientes
+A pesar de que sabemos que los datos son independientes, haremos la prueba t dependiente
+para comparar cómo se hace y el resultado
+```{r}
+t.test(
+  x           = setosa$Sepal.Length,
+  y           = virginica$Sepal.Length,
+  alternative = "two.sided",
+  var.equal   = FALSE,
+  conf.level  = 0.95,
+  paired = TRUE
+)
+```
+
+### Prueba t para una sola muestra
+```{r}
+t.test(
+  x           = setosa$Sepal.Length,
+  alternative = "two.sided",
+  conf.level  = 0.95
+)
+```
 
 ## 8.- Conclusión
 
