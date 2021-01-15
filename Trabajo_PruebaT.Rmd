@@ -92,7 +92,7 @@ Podemos ver que para la longitud del sépalo de setosa es bimodal y la de versic
 ## 3.- Establecemos la hipótesis
 Con esta información, compararemos la longitud de sépalo de setosa y virginica.
 *H0: no hay diferencia entre las medias de la longitud de sépalo. u1=u2*
-*HA o H1: las medias de la longitud de sépalo de setosa y virgínica no son iguales.  u1 != u2*
+*HA o H1: las medias de la longitud de sépalo de setosa y virginica no son iguales.  u1 != u2*
 
 Nivel de significancia, alfa = 0.05
 
