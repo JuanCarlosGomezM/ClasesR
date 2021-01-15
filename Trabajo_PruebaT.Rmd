@@ -11,6 +11,7 @@ output: html_notebook
 
 Usaremos el dataset iris
 
+## 'Importamos' datos
 Cargamos los paquetes y el dataset que usaremos
 ```{r warning=FALSE}
 library(dplyr)
@@ -19,7 +20,7 @@ data(iris)
 ```
 
 
-## 1.- Exploración para entender los datos
+## Exploración para entender los datos
 ```{r}
 dim(iris)
 ```
@@ -51,26 +52,22 @@ unique(iris$Species)
 ```
 Las 3 especies son: setosa, versicolor y virginica
 
-## 2.- Establecer la hipótesis
-Con esta información, compararemos la longitud de sépalo de setosa y virginica.
-*H0: no hay diferencia entre las medias de la longitud de sépalo. u1=u2*
-*HA o H1: las medias de la longitud de sépalo son diferentes.  u1 != u2*
 
-Nivel de significancia, alfa = 0.05
-
+```{r}
+summary(iris)
+```
 
 ## Gráfico exploratorio
 ```{r}
 plot(iris)
 ```
 
-
-## Sacaremos las medidas de tendencia central y de dispersión de Sepal.Length
+#Análisis descriptivo
+## 2.- Sacaremos las medidas de tendencia central y de dispersión de Sepal.Length
 ```{r}
 options(scipen=1000000) #para ver más decimales
 
-iris %>% group_by(Species) %>% filter(Species == "setosa" |
-                                        Species == "virginica") %>%
+iris %>% group_by(Species) %>%
   summarise(media = mean(Sepal.Length), mediana = median(Sepal.Length),
             varianza = var(Sepal.Length),
             desviacion_estandar = sd(Sepal.Length),
@@ -86,13 +83,19 @@ Moda <- function(x) {
   tab <- tabulate(match(x, valores))
   valores[tab == max(tab)]} #con esta función podremos calcular la moda
 
-iris %>% group_by(Species) %>% filter(Species == "setosa" |
-                                        Species == "virginica") %>%
+iris %>% group_by(Species) %>%
   summarise(modas = Moda(Sepal.Length))
 ```
-Podemos ver que para la longitud del sépalo de setosa es bimodal
+Podemos ver que para la longitud del sépalo de setosa es bimodal y la de versicolor es trimodal 
 
+## 3.- Establecemos la hipótesis
+Con esta información, compararemos la longitud de sépalo de setosa y virginica.
+*H0: no hay diferencia entre las medias de la longitud de sépalo. u1=u2*
+*HA o H1: la media de la longitud de sépalo de setosa es menor que la media de la longitud de sépalo de virgínica.  u1 < u2*
 
+Nivel de significancia, alfa = 0.05
+
+# Preparamos los datos
 ## Separaremos la información de las especies
 ```{r}
 setosa <- iris %>% filter(Species == "setosa") %>% select(Sepal.Length)
