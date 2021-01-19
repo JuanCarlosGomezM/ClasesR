@@ -368,6 +368,7 @@ Haremos un análisis de varianza usando las 3 especies, esta vez para el ancho d
 H0 es que pertenecen a la misma población (las medias no son diferentes).
 H1 es que las medias de las 3 muestras no son iguales. Se requerirían pruebas post hoc para saber entre cuáles está la diferencia.
 
+
 ### Preparamos los datos
 ```{r}
 setosa.ancho_sepalo <- iris %>% filter(Species == "setosa") %>% select(Sepal.Width)
@@ -379,6 +380,25 @@ names(versicolor.ancho_sepalo)[names(versicolor.ancho_sepalo) == "Sepal.Width"] 
 virginica.ancho_sepalo <- iris %>% filter(Species == "virginica") %>% select(Sepal.Width)
 names(virginica.ancho_sepalo)[names(virginica.ancho_sepalo) == "Sepal.Width"] <- "virginica"
 ```
+
+
+### Comprobar los supuestos del anova para el ancho del sépalo
+(si no se cumplieran aún así podemos hacer el anova pero tomando los resultados como aproximaciones
+en lugar de como resultados exactos)
+```{r}
+shapiro.test(setosa.ancho_sepalo$setosa)
+shapiro.test(versicolor.ancho_sepalo$versicolor)
+shapiro.test(virginica.ancho_sepalo$virginica)
+```
+son normales
+
+
+```{r}
+bartlett.test(list(setosa.ancho_sepalo$setosa, versicolor.ancho_sepalo$versicolor))
+bartlett.test(list(versicolor.ancho_sepalo$versicolor, virginica.ancho_sepalo$virginica))
+bartlett.test(list(virginica.ancho_sepalo$virginica, setosa.ancho_sepalo$setosa))
+```
+Hay homogeneidad de varianzas para las 3 comparaciones
 
 ```{r}
 Grupos_combinados <- data.frame(cbind(setosa.ancho_sepalo,versicolor.ancho_sepalo,virginica.ancho_sepalo))
