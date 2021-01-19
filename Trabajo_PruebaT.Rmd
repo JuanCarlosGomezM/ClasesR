@@ -7,7 +7,6 @@ output: html_notebook
 Estudio: 50 mediciones obtenidas de cada población
 
 ### Podemos buscar si hay correlación entre la longitud del pétalo y el ancho del pétalo en una especie
-### Podemos hacer anova de una vía comparando el ancho del sépalo en las 3 especies pero requiere análisis post-hoc
 ### En cuanto a la redacción del reporte a entregar, debe quedar claro: Título, Objetivos, Hipótesis, Métodos de recolección de la muestra, Cómo se evitaron sesgos y Conclusión; todo debe ir en el rmd para generar el html
 
 Usaremos el dataset iris
@@ -286,7 +285,7 @@ effsize::cohen.d(setosa$Sepal.Length, virginica$Sepal.Length, paired = FALSE)
 d= -3.077239, siendo el signo negativo porque se tomó
 como referencia la longitud de sépalo de virginica
 que es mayor que la de setosa,
-pero el signo solamemente indica la "dirección" del efecto.
+pero el signo solamemente indica el "sentido" del efecto. (En este caso, decremento)
 
 
 ## Repetiremos el análisis pero esta vez para una cola
@@ -330,6 +329,17 @@ t.test(
 )$stderr
 ```
 
+## 8.- Conclusión
+
+Dado que el valor de p es menor que alfa, se dispone de evidencia suficiente
+para considerar que existe una diferencia entre la longitud de sépalo promedio
+de setosa y la de virginica. El tamaño de efecto medido por d-Cohen tomando
+los valores absolutos es grande (d>0.8).
+
+Esto indica que las muestras analizadas provienen de poblaciones diferentes
+ya que la especie setosa tiene una longitud de sépalo menor que la especie virginica.
+
+
 ### Prueba t para muestras dependientes
 A pesar de que sabemos que los datos son independientes, haremos la prueba t dependiente
 para comparar cómo se hace y el resultado
@@ -353,14 +363,50 @@ t.test(
 )
 ```
 
-## 8.- Conclusión
+##ANOVA unilateral
+Haremos un análisis de varianza usando las 3 especies, esta vez para el ancho del sépalo.
+H0 es que pertenecen a la misma población (las medias no son diferentes).
+H1 es que las medias de las 3 muestras no son iguales. Se requerirían pruebas post hoc para saber entre cuáles está la diferencia.
 
-Dado que el valor de p es menor que alfa, se dispone de evidencia suficiente
-para considerar que existe una diferencia entre la longitud de sépalo promedio
-de setosa y la de virginica. El tamaño de efecto medido por d-Cohen tomando
-los valores absolutos es grande (d>0.8).
+### Preparamos los datos
+```{r}
+setosa.ancho_sepalo <- iris %>% filter(Species == "setosa") %>% select(Sepal.Width)
+names(setosa.ancho_sepalo)[names(setosa.ancho_sepalo) == "Sepal.Width"] <- "setosa"
 
-Esto indica que las muestras analizadas provienen de poblaciones diferentes
-ya que la especie setosa tiene una longitud de sépalo menor que la especie virginica.
+versicolor.ancho_sepalo <- iris %>% filter(Species == "versicolor") %>% select(Sepal.Width)
+names(versicolor.ancho_sepalo)[names(versicolor.ancho_sepalo) == "Sepal.Width"] <- "versicolor"
+
+virginica.ancho_sepalo <- iris %>% filter(Species == "virginica") %>% select(Sepal.Width)
+names(virginica.ancho_sepalo)[names(virginica.ancho_sepalo) == "Sepal.Width"] <- "virginica"
+```
+
+```{r}
+Grupos_combinados <- data.frame(cbind(setosa.ancho_sepalo,versicolor.ancho_sepalo,virginica.ancho_sepalo))
+Grupos_combinados
+summary(Grupos_combinados)
+```
+
+```{r}
+Stacked_grupos <- stack(Grupos_combinados)
+Stacked_grupos
+summary(Stacked_grupos)
+```
+### Prueba ANOVA
+```{r}
+resultados_anova <- aov(values ~ ind, data = Stacked_grupos)
+summary(resultados_anova)
+```
+### Prueba Tukey (análisis post hoc tras ANOVA)
+```{r}
+tukey <- TukeyHSD(resultados_anova)
+tukey
+```
+```{r}
+plot(tukey)
+```
+La diferencia más grande se encuentra entre el ancho de sépalo de versicolor y setosa, siendo menor el de versicolor
+
+
+
 
 
