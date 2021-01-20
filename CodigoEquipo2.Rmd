@@ -817,9 +817,8 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   geom_boxplot(aes(fill = dsm_iv_clinical_diagnosis), size = 0.71, fatten = 1) +
   ggpubr::stat_pvalue_manual(stat.test, label = "p.signif", y.position = 7000, size = 7) +
   stat_summary(fun = mean, geom = "point", shape = 1, size = 2.5, color = "black") +
-  scale_fill_manual(values = c(colorspace::lighten("gray", 0.6), colorspace::lighten("black", 0.7))) +
-  #colorspace::lighten("gray", 0.6), colorspace::lighten("black", 0.7)
-  #colorspace::lighten("#D184C9", 0.5), colorspace::lighten("#6684C9", 0.5))
+  #scale_fill_manual(values = c(colorspace::lighten("gray", 0.6), colorspace::lighten("black", 0.7))) +
+  scale_fill_manual(values = c(colorspace::lighten("#D184C9", 0.5), colorspace::lighten("#6684C9", 0.5))) +
   labs(
     title = "Niveles de ARN en sustancia blanca de lóbulo parietal derecho",
     x = "Diagnóstico DSM-IV",
@@ -828,8 +827,8 @@ Todos %>% group_by(gene_symbol, dsm_iv_clinical_diagnosis) %>%
   ) +
   facet_grid(. ~ gene_symbol) +
   theme(
-    strip.background = element_rect(linetype = "solid"),
-    strip.text.x = element_text(face = "italic"),
+    strip.background = element_rect(linetype = "solid", fill = "white"),
+    strip.text.x = element_text(face = "italic", size = 13),
     panel.spacing.x = unit(2, "lines"),
     legend.position = "none",
     plot.title = element_text(hjust = 0.5),
