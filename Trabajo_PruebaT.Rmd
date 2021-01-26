@@ -1,6 +1,6 @@
 ---
 title: "Bioestadística"
-author: "Chávez Blancas Isaac, Gómez Mendoza Juan Carlos, Lora Marín Obed Ricardo, Salazar Castro Marelly"
+author: "Chavez Blancas Isaac, Gómez Mendoza Juan Carlos, Lora Marín Obed Ricardo, Salazar Castro Marelly"
 output: html_notebook
 ---
 
