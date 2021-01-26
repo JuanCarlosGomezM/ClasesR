@@ -6,14 +6,16 @@ output: html_notebook
 
 Estudio: 50 mediciones obtenidas de cada población
 
-### Falta hacer el anova "a mano"
 ### En cuanto a la redacción del reporte a entregar, debe quedar claro: Título, Objetivos, Hipótesis, Métodos de recolección de la muestra, Cómo se evitaron sesgos y Conclusión; todo debe ir en el rmd para generar el html
+### Falta la conclusión de la regresión lineal
+### Falta todo de la chi cuadrada (no tenemos datos para hacerla)
+### ¿El anova se queda así?
 
 Usaremos el dataset iris
 
 ## 'Importamos' datos
 Cargamos los paquetes y el dataset que usaremos, iris, el cual venía precargado en R
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(ggplot2)
 data(iris)
@@ -198,7 +200,7 @@ Los representamos mediante boxplots
 ```{r}
 iris %>% filter(Species == "setosa" | Species == "virginica") %>%
   ggplot(aes(Species, Sepal.Length)) +
-  geom_boxplot(aes(x = Species, y = Sepal.Length, colour = Species)) +
+  geom_boxplot(aes(x = Species, y = Sepal.Length, fill = Species)) +
   theme_minimal() + theme(legend.position = "none")
 ```
 Parece que virginica tiene mayor dispersión,
@@ -333,7 +335,7 @@ t.test(
 )$stderr
 ```
 
-## 8.- Conclusión
+## 8.- Conclusión de la prueba t
 
 Dado que el valor de p es menor que alfa, se dispone de evidencia suficiente
 para considerar que existe una diferencia entre la longitud de sépalo promedio
@@ -344,7 +346,7 @@ Esto indica que las muestras analizadas provienen de poblaciones diferentes
 ya que la especie setosa tiene una longitud de sépalo menor que la especie virginica.
 
 
-## Prueba t para muestras dependientes
+## Ejemplo de prueba t para muestras dependientes
 A pesar de que sabemos que los datos son independientes, haremos la prueba t dependiente
 para comparar cómo se hace y el resultado
 ```{r}
@@ -358,7 +360,7 @@ t.test(
 )
 ```
 
-## Prueba t para una sola muestra
+## Ejemplo de prueba t para una sola muestra
 ```{r}
 t.test(
   x           = setosa.longitud_sepalo$Sepal.Length,
@@ -467,12 +469,13 @@ plot(tukey)
 ## Conclusión del ANOVA:
 Las 3 especies presentan medias distintas del ancho del sépalo. La diferencia entre versicolor y setosa fue de -0.658 y resultó negativa porque se restó la media de setosa a la de versicolor, siendo mayor la de setosa. La diferencia entre virginica y setosa fue de -0.454 y resultó negativa porque se restó la media de setosa a la de virginica, siendo mayor la de setosa. La diferencia entre virginica y versicolor  fue de 0.204 y resultó positiva porque se restó la media de versicolor a la de virginica, siendo mayor la de virginica. La diferencia más grande se encontró entre versicolor y setosa, y la diferencia más pequeña se encontró entre virginica y versicolor.
 
-# Correlación
+# Correlación y regresión lineal
+
 ## coeficiente de correlación de Pearson (r) y coeficiente muestral de determinación (r**2)
 
-
 ## Estadística descriptiva
-Para el largo del pétalo de versicolor
+
+### Para el largo del pétalo de versicolor
 ```{r}
 iris %>% group_by(Species) %>%
   summarise(media = mean(Petal.Length), mediana = median(Petal.Length),
@@ -483,7 +486,7 @@ iris %>% group_by(Species) %>%
             error_estandar = (sd(Petal.Length) / sqrt(length(Petal.Length))))
 ```
 
-Para el ancho del pétalo de versicolor
+### Para el ancho del pétalo de versicolor
 ```{r}
 iris %>% group_by(Species) %>%
   summarise(media = mean(Petal.Width), mediana = median(Petal.Width),
@@ -501,6 +504,9 @@ versicolor.longitud_petalo <- iris %>% filter(Species == "versicolor") %>% selec
 
 
 versicolor.ancho_petalo <- iris %>% filter(Species == "versicolor") %>% select(Petal.Width)
+
+
+irislineal <- iris %>% filter(Species == "versicolor") %>% select(Petal.Length, Petal.Width)
 ```
 
 ## Representación Gráfica
@@ -508,8 +514,32 @@ versicolor.ancho_petalo <- iris %>% filter(Species == "versicolor") %>% select(P
 iris %>% filter(Species == "versicolor") %>%
   ggplot(aes(Petal.Length, Petal.Width)) +
   geom_point() +
+  geom_smooth(method = "lm") +
+  theme_minimal() +
+  labs(title = "Correlación de las características de la especie versicolor",
+                         subtitle = "Regresión lineal con intervalo de confianza",
+                         x = "Longitud de Pétalo",
+                         y = "Ancho de Pétalo")
+```
+
+### Representación con residuales
+```{r}
+lineal <- lm(Petal.Width ~ Petal.Length, data = irislineal)
+iris$pred <- predict(lineal)
+iris$residual <- residuals(lineal)
+
+iris %>% filter(Species == "versicolor") %>%
+  ggplot(aes(Petal.Length, Petal.Width)) +
+  geom_point(aes(y = pred), shape = 1) +
   geom_smooth(method = "lm", se = FALSE) +
-  theme_minimal() + labs(title = "Correlación de las características de la especie versicolor",
+  geom_segment(aes(xend = Petal.Length, yend = pred), alpha = .2) +      
+  geom_point(aes(color = abs(residual), size = 0.1)) +
+  scale_color_continuous(low = "green", high = "red") +
+  guides(color = FALSE, size = FALSE) +
+   geom_segment(aes(xend = Petal.Length, yend = Petal.Width), color = "red", size = 0.5)+
+  theme_minimal() +
+  labs(title = "Correlación de las características de la especie versicolor",
+                         subtitle = "Regresión lineal con componentes residuales",
                          x = "Longitud de Pétalo",
                          y = "Ancho de Pétalo")
 ```
@@ -554,9 +584,14 @@ r**2
 ```
 entonces r**2 = 0.6188467
 
-## Conclusión de la correlación:
+## Regresión lineal
+```{r}
+summary(lineal)
+```
+
+## Conclusión de la correlación y la regresión lineal:
 El coeficiente de correlación indica una asociación positiva, es decir, valores grandes de la longitud del pétalo de versicolor se asocian con valores grandes del ancho de pétalo de versicolor. Más específico, el coeficiente muestral de determinación indica que el 61.88% de las variaciones en el ancho del pétalo de versicolor podrían explicarse por los valores de la longitud del pétalo de esta especie. Con la aclaración de que correlación no implica causalidad.
 
-
+En cuanto a la regresión lineal...
 
 
