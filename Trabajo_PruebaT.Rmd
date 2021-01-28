@@ -1,9 +1,9 @@
 ---
 title: "Bioestadística"
-author: "Chavez Blancas Isaac, Gómez Mendoza Juan Carlos, Lora Marín Obed Ricardo, Salazar Castro Marelly"
+author: "Chávez Blancas Isaac, Gómez Mendoza Juan Carlos, Lora Marín Obed Ricardo, Salazar Castro Marelly"
 output: html_notebook
 ---
-
+# Comparación en el tamaño de las flores del género Iris 
 Estudio: 50 mediciones obtenidas de cada población
 
 ### En cuanto a la redacción del reporte a entregar, debe quedar claro: Título, Objetivos, Hipótesis, Métodos de recolección de la muestra, Cómo se evitaron sesgos y Conclusión; todo debe ir en el rmd para generar el html
@@ -11,7 +11,9 @@ Estudio: 50 mediciones obtenidas de cada población
 ### Falta todo de la chi cuadrada (no tenemos datos para hacerla)
 ### ¿El anova se queda así?
 
-Usaremos el dataset iris
+Usaremos el dataset iris, que contiene las mediciones en centímetros de ancho y
+largo de sépalos y pétalos. Los datos son de 50 flores para cada especie perteneciente
+al género de *Iris*. Las especies son: *setosa, versicolor y virginica.*
 
 ## 'Importamos' datos
 Cargamos los paquetes y el dataset que usaremos, iris, el cual venía precargado en R
@@ -52,7 +54,7 @@ La variable Species está correctamente codificada como factor
 
 unique(iris$Species)
 ```
-Las 3 especies son: setosa, versicolor y virginica
+Las 3 especies son: *setosa, versicolor y virginica.*
 
 
 ```{r}
@@ -89,6 +91,9 @@ iris %>% group_by(Species) %>%
   summarise(modas = Moda(Sepal.Length))
 ```
 Podemos ver que para la longitud del sépalo de setosa es bimodal y la de versicolor es trimodal 
+
+## Objetivo
+#### Comparar la longitud del sépalo entre las especies *setosa* y *virginica*
 
 ## 3.- Establecemos la hipótesis
 Con esta información, compararemos la longitud de sépalo de setosa y virginica.
@@ -256,6 +261,9 @@ la media de la longitud de sépalo de virginica.
 La diferencia de las medias se había calculado previamente,
 siendo: 5.006-6.588=-1.582
 
+## Conclusión
+En el género *Iris* la longitud del sépalo en las flores de la especie *setosa* 
+es menor a la de las flores de la especie *virginica*
 
 ### Error estándar de la diferencia de las medias para las dos colas:
 ```{r}
@@ -369,8 +377,13 @@ t.test(
 )
 ```
 
+# Objetivo 2
+#### Comparar el ancho del sépalo entre las tres diferentes especies del género Iris
+
 # ANOVA unilateral
 Haremos un análisis de varianza usando las 3 especies, *esta vez para el ancho del sépalo*.
+
+## Hipótesis
 *H0 es que pertenecen a la misma población (las medias no son diferentes).*
 *H1 es que las medias de las 3 muestras no son iguales. Se requerirían pruebas post hoc para saber entre cuáles está la diferencia.*
 
@@ -410,7 +423,8 @@ shapiro.test(setosa.ancho_sepalo$setosa)
 shapiro.test(versicolor.ancho_sepalo$versicolor)
 shapiro.test(virginica.ancho_sepalo$virginica)
 ```
-son normales
+Las muestras del ancho del sépalo para las tres especies tienen una distribución
+normal
 
 ### Pruebas de homocedasticidad
 ```{r}
@@ -496,7 +510,8 @@ iris %>% group_by(Species) %>%
             rango_intercuartil = IQR(Petal.Width),
             error_estandar = (sd(Petal.Width) / sqrt(length(Petal.Width))))
 ```
-Con esta información *Buscaremos si hay correlación entre la longitud del pétalo y el ancho del pétalo de versicolor*
+## Objetivo 3
+#### Con esta información *Buscaremos si hay correlación entre la longitud del pétalo y el ancho del pétalo de versicolor*
 
 ## Preparamos los datos
 ```{r}
@@ -588,10 +603,23 @@ entonces r**2 = 0.6188467
 ```{r}
 summary(lineal)
 ```
+#### La ecuación de la recta es: *y = -0.08429 + 0.33105x*
+Con esta ecuación resultande de la regresión podemos hacer predicciones de anchos
+del pétalo con longitudes supuestas. Por ejemplo suponiendo largos del pétalo de 
+entre 5 y 7 centímetros.
+
+```{r}
+largos.supuestos <- data.frame(largo = seq(5,7)) 
+predict(lineal, largos.supuestos)
+```
+
 
 ## Conclusión de la correlación y la regresión lineal:
 El coeficiente de correlación indica una asociación positiva, es decir, valores grandes de la longitud del pétalo de versicolor se asocian con valores grandes del ancho de pétalo de versicolor. Más específico, el coeficiente muestral de determinación indica que el 61.88% de las variaciones en el ancho del pétalo de versicolor podrían explicarse por los valores de la longitud del pétalo de esta especie. Con la aclaración de que correlación no implica causalidad.
 
-En cuanto a la regresión lineal...
+En cuanto a la regresión lineal y las predicciones que obtenemos de ésta a partir
+de la ecuación lineal, notamos que al incrementarse el valor del largo del pétalo
+crece igualmente el ancho. Es decir, al aumentar el largo del pétalo, aumenta el
+ancho.
 
 
