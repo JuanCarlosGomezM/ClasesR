@@ -658,4 +658,4 @@ matriz <-matrix(c(80, 25, 85, 35, 92, 50),nrow=2)
 matriz
 chisq.test(matriz)
 ```
-
+Si la prueba no se rechaza, indica que no depende una variable de la otra. Si la prueba sí se rechaza, indica que sí depende una variable de la otra.
