@@ -470,6 +470,7 @@ plot(tukey)
 ## Conclusión del ANOVA:
 Las 3 especies presentan medias distintas del ancho del sépalo. La diferencia entre versicolor y setosa fue de -0.658 y resultó negativa porque se restó la media de setosa a la de versicolor, siendo mayor la de setosa. La diferencia entre virginica y setosa fue de -0.454 y resultó negativa porque se restó la media de setosa a la de virginica, siendo mayor la de setosa. La diferencia entre virginica y versicolor  fue de 0.204 y resultó positiva porque se restó la media de versicolor a la de virginica, siendo mayor la de virginica. La diferencia más grande se encontró entre versicolor y setosa, y la diferencia más pequeña se encontró entre virginica y versicolor.
 
+
 # Correlación y regresión lineal
 
 ## coeficiente de correlación de Pearson (r) y coeficiente muestral de determinación (r**2)
@@ -506,10 +507,10 @@ de no hacer esto, podemos olvider filtrar al momento de hacer el modelo de la re
 y los valores esperados serán muy distintos porque se estarán considerando también los datos de las otras especies.
 ```{r}
 versicolor.longitud_petalo <- iris %>% filter(Species == "versicolor") %>% select(Petal.Length)
-
+versicolor.longitud_petalo <- as.numeric(unlist(versicolor.longitud_petalo))
 
 versicolor.ancho_petalo <- iris %>% filter(Species == "versicolor") %>% select(Petal.Width)
-
+versicolor.ancho_petalo <- as.numeric(unlist(versicolor.ancho_petalo))
 
 irislineal <- iris %>% filter(Species == "versicolor") %>% select(Petal.Length, Petal.Width)
 ```
@@ -526,6 +527,13 @@ iris %>% filter(Species == "versicolor") %>%
                          x = "Longitud de Pétalo",
                          y = "Ancho de Pétalo")
 ```
+### Comprobación de normalidad
+```{r}
+shapiro.test(versicolor.longitud_petalo)
+
+shapiro.test(versicolor.ancho_petalo)
+```
+El ancho de pétalo no cumple con una distribución normal, el cual es un requisito para sacar coeficiente de correlación; entendemos que no se debería hacer la prueba si no se normalizan los datos, pero para practicar, continuaremos usándolos de cualquier manera.
 
 ### Representación con residuales
 ```{r}
@@ -651,4 +659,11 @@ de la ecuación lineal, notamos que al incrementarse el valor del largo del pét
 crece igualmente el ancho. Es decir, al aumentar el largo del pétalo, aumenta el
 ancho.
 
+
+# Ejemplo de uso de Chi cuadrada
+```{r}
+matriz <-matrix(c(80, 25, 85, 35, 92, 50),nrow=2)
+matriz
+chisq.test(matriz)
+```
 
