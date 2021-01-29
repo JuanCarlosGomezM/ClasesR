@@ -7,7 +7,6 @@ output: html_notebook
 Estudio: 50 mediciones obtenidas de cada población
 
 ### En cuanto a la redacción del reporte a entregar, debe quedar claro: Título, Objetivos, Hipótesis, Métodos de recolección de la muestra, Cómo se evitaron sesgos y Conclusión; todo debe ir en el rmd para generar el html
-### Falta la conclusión de la regresión lineal
 ### Falta todo de la chi cuadrada (no tenemos datos para hacerla)
 ### ¿El anova se queda así?
 
@@ -17,9 +16,10 @@ al género de *Iris*. Las especies son: *setosa, versicolor y virginica.*
 
 ## 'Importamos' datos
 Cargamos los paquetes y el dataset que usaremos, iris, el cual venía precargado en R
-```{r message=FALSE, warning=FALSE}
+```{r}
 library(dplyr)
 library(ggplot2)
+library(gridExtra)
 data(iris)
 ```
 
@@ -51,7 +51,6 @@ La variable Species está correctamente codificada como factor
 
 
 ```{r}
-
 unique(iris$Species)
 ```
 Las 3 especies son: *setosa, versicolor y virginica.*
@@ -65,6 +64,8 @@ summary(iris)
 ```{r}
 plot(iris)
 ```
+
+
 # Pruebas T
 ## Análisis descriptivo
 ### 2.- Sacaremos las medidas de tendencia central y de dispersión de Sepal.Length
@@ -145,17 +146,15 @@ mean(setosa.longitud_sepalo$Sepal.Length)-mean(virginica.longitud_sepalo$Sepal.L
 Haremos un histograma para visualizar los datos
 y darnos una idea de cómo están distribuidos
 ```{r}
-iris %>% filter(Species == "setosa" | Species == "virginica") %>%
+plot1<- iris %>% filter(Species == "setosa" | Species == "virginica") %>%
   ggplot(aes(Sepal.Length)) +
   geom_histogram(aes(colour = Species, fill = Species)) +
   facet_grid(~ Species) + theme_minimal() + theme(legend.position = "none")
-```
-
-```{r}
-iris %>% filter(Species == "setosa" | Species == "virginica") %>%
+plot2 <- iris %>% filter(Species == "setosa" | Species == "virginica") %>%
   ggplot(aes(Sepal.Length)) +
   geom_freqpoly(aes(x = Sepal.Length, colour = Species))+
   theme_minimal()
+grid.arrange(plot1, plot2)
 ```
 
 Haremos q-q plots con la función qqPlot del paquete car
@@ -210,18 +209,6 @@ iris %>% filter(Species == "setosa" | Species == "virginica") %>%
 ```
 Parece que virginica tiene mayor dispersión,
 un rango intercuartil más amplio e incluso un outlier.
-
-
-También los representamos mediante gráficos de violín para ver la densidad
-```{r}
-iris %>% filter(Species == "setosa" | Species == "virginica") %>%
-  ggplot(aes(Species, Sepal.Length)) +
-  geom_violin(aes(x = Species, y = Sepal.Length, fill = Species))+
-  geom_point()+
-  theme_minimal() + theme(legend.position = "none")
-```
-
-
 
 
 Test de homocedasticidad:
@@ -514,6 +501,9 @@ iris %>% group_by(Species) %>%
 #### Con esta información *Buscaremos si hay correlación entre la longitud del pétalo y el ancho del pétalo de versicolor*
 
 ## Preparamos los datos
+Crearemos el objeto irislineal, el cual contendrá nuestras variables exclusivamente de la especie versicolor;
+de no hacer esto, podemos olvider filtrar al momento de hacer el modelo de la regresión lineal
+y los valores esperados serán muy distintos porque se estarán considerando también los datos de las otras especies.
 ```{r}
 versicolor.longitud_petalo <- iris %>% filter(Species == "versicolor") %>% select(Petal.Length)
 
@@ -586,6 +576,13 @@ cov(versicolor.longitud_petalo, versicolor.ancho_petalo, method = "pearson")/
 ```
 r= 0.7866681, igual que con las funciones
 
+## Matriz de correlación
+```{r}
+library(corrplot)
+corrplot(cor(select(irislineal, Petal.Width, Petal.Length)),
+         method = "number", tl.col = "black")
+```
+
 ### Guardaremos el valor de r en una variable
 ```{r}
 r <- cov(versicolor.longitud_petalo, versicolor.ancho_petalo, method = "pearson")/
@@ -604,14 +601,46 @@ entonces r**2 = 0.6188467
 summary(lineal)
 ```
 #### La ecuación de la recta es: *y = -0.08429 + 0.33105x*
-Con esta ecuación resultande de la regresión podemos hacer predicciones de anchos
+Con esta ecuación resultante de la regresión podemos hacer predicciones de anchos
 del pétalo con longitudes supuestas. Por ejemplo suponiendo largos del pétalo de 
 entre 5 y 7 centímetros.
+
+
+### Intervalo de confianza de la regresión lineal
+```{r}
+confint(lineal)
+```
+
 
 ```{r}
 largos.supuestos <- data.frame(largo = seq(5,7)) 
 predict(lineal, largos.supuestos)
 ```
+
+
+Para ver la relación lineal entre los predictores y la variable respuesta y hallar valores atípicos, graficaremos aleatoriamente en torno a 0 con variabilidad constante a lo largo de X (También sirve para ver datos atípicos).
+```{r}
+plot3 <- ggplot(data = irislineal, aes(Petal.Length, lineal$residual)) +
+  geom_point() + geom_smooth(color = "firebrick") + geom_hline(yintercept = 0) +
+  theme_bw()
+plot4 <- ggplot(data = irislineal, aes(Petal.Width, lineal$residual)) +
+  geom_point() + geom_smooth(color = "firebrick") + geom_hline(yintercept = 0) +
+  theme_bw()
+grid.arrange(plot3, plot4)
+```
+
+
+### Distribución normal de los residuos
+```{r}
+qqnorm(lineal$residuals)
+qqline(lineal$residuals)
+```
+
+### Prueba de normalidad de los residuos
+```{r}
+shapiro.test(lineal$residuals)
+```
+p>alfa, Son normales
 
 
 ## Conclusión de la correlación y la regresión lineal:
