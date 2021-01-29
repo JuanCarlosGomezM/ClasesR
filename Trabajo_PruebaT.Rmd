@@ -3,12 +3,8 @@ title: "Bioestadística"
 author: "Chávez Blancas Isaac, Gómez Mendoza Juan Carlos, Lora Marín Obed Ricardo, Salazar Castro Marelly"
 output: html_notebook
 ---
-# Comparación en el tamaño de las flores del género Iris 
+# Comparación en el tamaño de las flores de diferentes especies del género Iris 
 Estudio: 50 mediciones obtenidas de cada población
-
-### En cuanto a la redacción del reporte a entregar, debe quedar claro: Título, Objetivos, Hipótesis, Métodos de recolección de la muestra, Cómo se evitaron sesgos y Conclusión; todo debe ir en el rmd para generar el html
-### Falta todo de la chi cuadrada (no tenemos datos para hacerla)
-### ¿El anova se queda así?
 
 Usaremos el dataset iris, que contiene las mediciones en centímetros de ancho y
 largo de sépalos y pétalos. Los datos son de 50 flores para cada especie perteneciente
@@ -59,6 +55,7 @@ Las 3 especies son: *setosa, versicolor y virginica.*
 ```{r}
 summary(iris)
 ```
+Cabe mencionar que los resultados del summary no están separados por especie
 
 ## Gráfico exploratorio
 ```{r}
@@ -68,7 +65,7 @@ plot(iris)
 
 # Pruebas T
 ## Análisis descriptivo
-### 2.- Sacaremos las medidas de tendencia central y de dispersión de Sepal.Length
+### Sacaremos las medidas de tendencia central y de dispersión de la longitud de sépalo (Sepal.Length)
 ```{r}
 options(scipen=1000000)
 
@@ -96,7 +93,7 @@ Podemos ver que para la longitud del sépalo de setosa es bimodal y la de versic
 ## Objetivo
 #### Comparar la longitud del sépalo entre las especies *setosa* y *virginica*
 
-## 3.- Establecemos la hipótesis
+## Establecemos la hipótesis
 Con esta información, compararemos la longitud de sépalo de setosa y virginica.
 *H0: no hay diferencia entre las medias de la longitud de sépalo. u1=u2*
 *HA o H1: las medias de la longitud de sépalo de setosa y virginica no son iguales.  u1 != u2*
@@ -134,13 +131,13 @@ t.test(virginica.longitud_sepalo$Sepal.Length)$conf.int
 Intervalo de la media de virginica: de 6.407285 a 6.768715
 
 
-## 3.- Calcular el parámetro estimado (estadístico)
+## Calcular el parámetro estimado (estadístico)
 calculamos la *diferencia de las medias muestrales*
 ```{r}
 mean(setosa.longitud_sepalo$Sepal.Length)-mean(virginica.longitud_sepalo$Sepal.Length)
 ```
 
-## 4.- Comprobaremos las condiciones (supuestos) para la prueba t
+## Comprobaremos las condiciones (supuestos) para la prueba t
 
 ### Normalidad
 Haremos un histograma para visualizar los datos
@@ -207,7 +204,7 @@ iris %>% filter(Species == "setosa" | Species == "virginica") %>%
   geom_boxplot(aes(x = Species, y = Sepal.Length, fill = Species)) +
   theme_minimal() + theme(legend.position = "none")
 ```
-Parece que virginica tiene mayor dispersión,
+Parece que virginica tiene mayor dispersión, con
 un rango intercuartil más amplio e incluso un outlier.
 
 
@@ -222,12 +219,12 @@ y no se puede hacer una t de Student;
 sin embargo, se puede hacer una prueba t para varianzas desiguales,
 conocida como t de Welch.
 
-## 5.- Recordar el nivel de significancia
+## Recordar el nivel de significancia
 *alfa = 0.05*
 Error tipo I: Error de rechazar la H0 cuando es verdadera
 Error tipo II: Error de no rechazar la H0 cuando es falsa
 
-## 6.- Cálculo del p-value mediante la prueba t de Welch para dos colas
+## Cálculo del p-value mediante la prueba t de Welch para dos colas
 ```{r}
 t.test(
   x           = setosa.longitud_sepalo$Sepal.Length,
@@ -278,7 +275,7 @@ Ahora ya podemos calcular la t:
 t=-15.3862, igual que con las funciones.
 
 
-## 7.- Cálculo del tamaño del efecto
+## Cálculo del tamaño del efecto
 Calcularemos la d de Cohen con la función cohen.d() del paquete effsize
 ```{r}
 effsize::cohen.d(setosa.longitud_sepalo$Sepal.Length, virginica.longitud_sepalo$Sepal.Length, paired = FALSE)
@@ -337,7 +334,7 @@ para considerar que existe una diferencia entre la longitud de sépalo promedio
 de setosa y la de virginica. El tamaño de efecto medido por d-Cohen tomando
 los valores absolutos es grande (d>0.8).
 
-Esto indica que las muestras analizadas provienen de poblaciones diferentes
+Esto indicaría que las muestras analizadas provienen de poblaciones diferentes
 ya que la especie setosa tiene una longitud de sépalo menor que la especie virginica.
 
 
@@ -477,7 +474,7 @@ Las 3 especies presentan medias distintas del ancho del sépalo. La diferencia e
 
 ## Estadística descriptiva
 
-### Para el largo del pétalo de versicolor
+### Para el largo del pétalo
 ```{r}
 iris %>% group_by(Species) %>%
   summarise(media = mean(Petal.Length), mediana = median(Petal.Length),
@@ -488,7 +485,7 @@ iris %>% group_by(Species) %>%
             error_estandar = (sd(Petal.Length) / sqrt(length(Petal.Length))))
 ```
 
-### Para el ancho del pétalo de versicolor
+### Para el ancho del pétalo
 ```{r}
 iris %>% group_by(Species) %>%
   summarise(media = mean(Petal.Width), mediana = median(Petal.Width),
@@ -507,10 +504,8 @@ de no hacer esto, podemos olvider filtrar al momento de hacer el modelo de la re
 y los valores esperados serán muy distintos porque se estarán considerando también los datos de las otras especies.
 ```{r}
 versicolor.longitud_petalo <- iris %>% filter(Species == "versicolor") %>% select(Petal.Length)
-versicolor.longitud_petalo <- as.numeric(unlist(versicolor.longitud_petalo))
 
 versicolor.ancho_petalo <- iris %>% filter(Species == "versicolor") %>% select(Petal.Width)
-versicolor.ancho_petalo <- as.numeric(unlist(versicolor.ancho_petalo))
 
 irislineal <- iris %>% filter(Species == "versicolor") %>% select(Petal.Length, Petal.Width)
 ```
@@ -522,18 +517,18 @@ iris %>% filter(Species == "versicolor") %>%
   geom_point() +
   geom_smooth(method = "lm") +
   theme_minimal() +
-  labs(title = "Correlación de las características de la especie versicolor",
+  labs(title = "Correlación de las características del pétalo de la especie versicolor",
                          subtitle = "Regresión lineal con intervalo de confianza",
                          x = "Longitud de Pétalo",
                          y = "Ancho de Pétalo")
 ```
 ### Comprobación de normalidad
 ```{r}
-shapiro.test(versicolor.longitud_petalo)
+shapiro.test(as.numeric(unlist(versicolor.longitud_petalo)))
 
-shapiro.test(versicolor.ancho_petalo)
+shapiro.test(as.numeric(unlist(versicolor.ancho_petalo)))
 ```
-El ancho de pétalo no cumple con una distribución normal, el cual es un requisito para sacar coeficiente de correlación; entendemos que no se debería hacer la prueba si no se normalizan los datos, pero para practicar, continuaremos usándolos de cualquier manera.
+El ancho de pétalo de versicolor no cumple con una distribución normal, el cual es un requisito para sacar coeficiente de correlación; entendemos que no se debería hacer la prueba si no se normalizan los datos, pero ya que el propósito de este trabajo es practicar, continuaremos usándolos de cualquier manera.
 
 ### Representación con residuales
 ```{r}
@@ -551,7 +546,7 @@ iris %>% filter(Species == "versicolor") %>%
   guides(color = FALSE, size = FALSE) +
    geom_segment(aes(xend = Petal.Length, yend = Petal.Width), color = "red", size = 0.5)+
   theme_minimal() +
-  labs(title = "Correlación de las características de la especie versicolor",
+  labs(title = "Correlación de las características del pétalo de la especie versicolor",
                          subtitle = "Regresión lineal con componentes residuales",
                          x = "Longitud de Pétalo",
                          y = "Ancho de Pétalo")
@@ -605,6 +600,7 @@ r**2
 entonces r**2 = 0.6188467
 
 ## Regresión lineal
+Cuando hicimos la representación con residuales, creamos el objeto *lineal* que contiene el modelo de la regresión lineal hecho por la función lm(), ahora, lo analizaremos:
 ```{r}
 summary(lineal)
 ```
@@ -620,20 +616,16 @@ confint(lineal)
 ```
 
 
-```{r}
-largos.supuestos <- data.frame(largo = seq(5,7)) 
-predict(lineal, largos.supuestos)
-```
-
-
-Para ver la relación lineal entre los predictores y la variable respuesta y hallar valores atípicos, graficaremos aleatoriamente en torno a 0 con variabilidad constante a lo largo de X (También sirve para ver datos atípicos).
+Para ver la relación entre los residuales y las variables, graficaremos en torno a 0 con variabilidad constante a lo largo de X.
 ```{r}
 plot3 <- ggplot(data = irislineal, aes(Petal.Length, lineal$residual)) +
   geom_point() + geom_smooth(color = "firebrick") + geom_hline(yintercept = 0) +
   theme_bw()
+
 plot4 <- ggplot(data = irislineal, aes(Petal.Width, lineal$residual)) +
   geom_point() + geom_smooth(color = "firebrick") + geom_hline(yintercept = 0) +
   theme_bw()
+
 grid.arrange(plot3, plot4)
 ```
 
