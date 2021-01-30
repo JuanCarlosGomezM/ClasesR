@@ -1,6 +1,6 @@
 ---
 title: "Bioestadística"
-author: "Chávez Blancas Isaac, Gómez Mendoza Juan Carlos, Lora Marín Obed Ricardo, Salazar Castro Marelly"
+author: "Salazar Castro Marelly, Chávez Blancas Isaac, Lora Marín Obed Ricardo, Gómez Mendoza Juan Carlos"
 output: html_notebook
 ---
 # Comparación en el tamaño de las flores de diferentes especies del género Iris 
@@ -90,8 +90,8 @@ iris %>% group_by(Species) %>%
 ```
 Podemos ver que para la longitud del sépalo de setosa es bimodal y la de versicolor es trimodal 
 
-## Objetivo
-#### Comparar la longitud del sépalo entre las especies *setosa* y *virginica*
+## Objetivo 1
+### Comparar la longitud del sépalo entre las especies *setosa* y *virginica*
 
 ## Establecemos la hipótesis
 Con esta información, compararemos la longitud de sépalo de setosa y virginica.
@@ -103,9 +103,11 @@ Nivel de significancia, alfa = 0.05
 ## Preparamos los datos
 ### Separaremos la información de las especies
 ```{r}
-setosa.longitud_sepalo <- iris %>% filter(Species == "setosa") %>% select(Sepal.Length)
+setosa.longitud_sepalo <- iris %>% filter(Species == "setosa") %>%
+  select(Sepal.Length)
 
-virginica.longitud_sepalo <- iris %>% filter(Species  == "virginica") %>% select(Sepal.Length)
+virginica.longitud_sepalo <- iris %>% filter(Species  == "virginica") %>%
+  select(Sepal.Length)
 ```
 
 Contamos las observaciones en cada grupo
@@ -134,7 +136,8 @@ Intervalo de la media de virginica: de 6.407285 a 6.768715
 ## Calcular el parámetro estimado (estadístico)
 calculamos la *diferencia de las medias muestrales*
 ```{r}
-mean(setosa.longitud_sepalo$Sepal.Length)-mean(virginica.longitud_sepalo$Sepal.Length)
+mean(setosa.longitud_sepalo$Sepal.Length)-mean(
+  virginica.longitud_sepalo$Sepal.Length)
 ```
 
 ## Comprobaremos las condiciones (supuestos) para la prueba t
@@ -156,18 +159,21 @@ grid.arrange(plot1, plot2)
 
 Haremos q-q plots con la función qqPlot del paquete car
 ```{r}
-car::qqPlot(setosa.longitud_sepalo$Sepal.Length, distribution= "norm",
+library(car)
+qqPlot(setosa.longitud_sepalo$Sepal.Length, distribution= "norm",
             xlab = "Cuantiles teóricos", ylab = "cuantiles de setosa")
 
-car::qqPlot(virginica.longitud_sepalo$Sepal.Length, distribution= "norm",
+qqPlot(virginica.longitud_sepalo$Sepal.Length, distribution= "norm",
             xlab = "Cuantiles teóricos", ylab = "cuantiles de virginica")
 ```
 
-Estos puntos escalonados nos llamaron la atención, por lo que decidimos ver los valores numéricos ordenados
+Estos puntos escalonados nos llamaron la atención,
+por lo que decidimos ver los valores numéricos ordenados
 ```{r}
 arrange(setosa.longitud_sepalo,Sepal.Length)
 ```
-Los puntos escalonados de los gráficos de cuantiles se deben a que *varios números se repiten mucho*
+Los puntos escalonados de los gráficos de cuantiles se deben
+a que *varios números se repiten mucho*
 
 
 ```{r}
@@ -263,14 +269,16 @@ t.test(
 ## Cálculo "manual" de la t
 Requerimos la varianza agrupada
 ```{r}
-var_pool <- (((50-1)*var(setosa.longitud_sepalo$Sepal.Length))+((50-1)*var(virginica.longitud_sepalo$Sepal.Length)))/
-  (50+50-2)
+var_pool <- (((50-1)*var(setosa.longitud_sepalo$Sepal.Length)
+              )+((50-1)*var(virginica.longitud_sepalo$Sepal.Length)))/
+              (50+50-2)
 ```
 
 Ahora ya podemos calcular la t:
 ```{r}
-(mean(setosa.longitud_sepalo$Sepal.Length)-mean(virginica.longitud_sepalo$Sepal.Length))/
-  sqrt(((var_pool)/50)+((var_pool)/50))
+(mean(setosa.longitud_sepalo$Sepal.Length
+      )-mean(virginica.longitud_sepalo$Sepal.Length))/
+      sqrt(((var_pool)/50)+((var_pool)/50))
 ```
 t=-15.3862, igual que con las funciones.
 
@@ -278,19 +286,22 @@ t=-15.3862, igual que con las funciones.
 ## Cálculo del tamaño del efecto
 Calcularemos la d de Cohen con la función cohen.d() del paquete effsize
 ```{r}
-effsize::cohen.d(setosa.longitud_sepalo$Sepal.Length, virginica.longitud_sepalo$Sepal.Length, paired = FALSE)
+effsize::cohen.d(setosa.longitud_sepalo$Sepal.Length,
+                 virginica.longitud_sepalo$Sepal.Length, paired = FALSE)
 ```
 d= -3.077239, siendo el signo negativo porque se tomó
 como referencia la longitud de sépalo de virginica
 que es mayor que la de setosa,
-pero el signo solamemente indica el "sentido" del efecto. (En este caso, decremento)
+pero el signo solamemente indica el "sentido" del efecto.
+(En este caso, decremento)
 
 
 ## Repetiremos el análisis pero esta vez para una cola
 
 *Nuevas hipótesis:*
 *H0: no hay diferencia entre las medias de la longitud de sépalo. u1=u2*
-*HA o H1: la media de la longitud de sépalo de setosa es menor que la media de la longitud de sépalo de virginica.  u1 < u2*
+*HA o H1: la media de la longitud de sépalo de setosa es menor*
+*que la media de la longitud de sépalo de virginica.  u1 < u2*
 
 *Intervalos de confianza unilaterales del 95%* 
 De setosa:
@@ -339,8 +350,8 @@ ya que la especie setosa tiene una longitud de sépalo menor que la especie virg
 
 
 ## Ejemplo de prueba t para muestras dependientes
-A pesar de que sabemos que los datos son independientes, haremos la prueba t dependiente
-para comparar cómo se hace y el resultado
+A pesar de que sabemos que los datos son independientes,
+haremos la prueba t dependiente para comparar cómo se hace y el resultado
 ```{r}
 t.test(
   x           = setosa.longitud_sepalo$Sepal.Length,
@@ -365,11 +376,13 @@ t.test(
 #### Comparar el ancho del sépalo entre las tres diferentes especies del género Iris
 
 # ANOVA unilateral
-Haremos un análisis de varianza usando las 3 especies, *esta vez para el ancho del sépalo*.
+Haremos un análisis de varianza usando las 3 especies,
+*esta vez para el ancho del sépalo*.
 
 ## Hipótesis
 *H0 es que pertenecen a la misma población (las medias no son diferentes).*
-*H1 es que las medias de las 3 muestras no son iguales. Se requerirían pruebas post hoc para saber entre cuáles está la diferencia.*
+*H1 es que las medias de las 3 muestras no son iguales.*
+*Se requerirían pruebas post hoc para saber entre cuáles está la diferencia.*
 
 
 ## Estadística descriptiva
@@ -387,18 +400,22 @@ iris %>% group_by(Species) %>%
 ## Preparamos los datos para la comprobación de los supuestos
 ```{r}
 setosa.ancho_sepalo <- iris %>% filter(Species == "setosa") %>% select(Sepal.Width)
-names(setosa.ancho_sepalo)[names(setosa.ancho_sepalo) == "Sepal.Width"] <- "setosa"
+names(setosa.ancho_sepalo)[names(setosa.ancho_sepalo) ==
+                             "Sepal.Width"] <- "setosa"
 
 versicolor.ancho_sepalo <- iris %>% filter(Species == "versicolor") %>% select(Sepal.Width)
-names(versicolor.ancho_sepalo)[names(versicolor.ancho_sepalo) == "Sepal.Width"] <- "versicolor"
+names(versicolor.ancho_sepalo)[names(versicolor.ancho_sepalo) ==
+                                 "Sepal.Width"] <- "versicolor"
 
 virginica.ancho_sepalo <- iris %>% filter(Species == "virginica") %>% select(Sepal.Width)
-names(virginica.ancho_sepalo)[names(virginica.ancho_sepalo) == "Sepal.Width"] <- "virginica"
+names(virginica.ancho_sepalo)[names(virginica.ancho_sepalo) ==
+                                "Sepal.Width"] <- "virginica"
 ```
 
 
 ## Comprobar los supuestos del anova para el ancho del sépalo
-(si no se cumplieran aún así podemos hacer el anova pero tomando los resultados como aproximaciones
+(si no se cumplieran aún así podemos hacer el anova
+pero tomando los resultados como aproximaciones
 en lugar de como resultados exactos)
 
 ### Pruebas de normalidad
@@ -421,7 +438,8 @@ Hay homogeneidad de varianzas para las 3 comparaciones
 
 ## Creación de dataframe con el arreglo necesario para el ANOVA
 ```{r}
-Grupos_combinados <- data.frame(cbind(setosa.ancho_sepalo,versicolor.ancho_sepalo,virginica.ancho_sepalo))
+Grupos_combinados <- data.frame(cbind(setosa.ancho_sepalo,
+                                      versicolor.ancho_sepalo,virginica.ancho_sepalo))
 Grupos_combinados
 summary(Grupos_combinados)
 ```
@@ -447,7 +465,8 @@ summary(resultados_anova2)
 
 
 ## Prueba Tukey (análisis post hoc tras ANOVA)
-Usando el método del stack, se debieron cambiar los nombres de las columnas previamente, para distinguir las comparaciones en la prueba Tukey:
+Usando el método del stack, se debieron cambiar los nombres de las
+columnas previamente, para distinguir las comparaciones en la prueba Tukey:
 ```{r}
 tukey <- TukeyHSD(resultados_anova)
 tukey
@@ -458,6 +477,14 @@ Usando el dataframe como estaba el dataset, ya no fue necesario modificar nombre
 tukey2 <- TukeyHSD(resultados_anova2)
 tukey2
 ```
+El resultado de la prueba Tukey HSD (honestly significant difference),
+indica que las 3 comparaciones de las medias (la cuarta columna) tienen
+una p<0.05, por lo que las 3 diferencias son estadísticamente significativas.
+En otras palabras, en cuanto al ancho del sépalo:
+la media de versicolor es diferente a la de setosa,
+la media de virginica es diferente a la de setosa y
+la media de virginica es diferente a la de versicolor. 
+
 
 ## Gráfico del resultado de la prueba Tukey
 ```{r}
@@ -465,16 +492,26 @@ plot(tukey)
 ```
 
 ## Conclusión del ANOVA:
-Las 3 especies presentan medias distintas del ancho del sépalo. La diferencia entre versicolor y setosa fue de -0.658 y resultó negativa porque se restó la media de setosa a la de versicolor, siendo mayor la de setosa. La diferencia entre virginica y setosa fue de -0.454 y resultó negativa porque se restó la media de setosa a la de virginica, siendo mayor la de setosa. La diferencia entre virginica y versicolor  fue de 0.204 y resultó positiva porque se restó la media de versicolor a la de virginica, siendo mayor la de virginica. La diferencia más grande se encontró entre versicolor y setosa, y la diferencia más pequeña se encontró entre virginica y versicolor.
+Las 3 especies presentan medias distintas del ancho del sépalo.
+La diferencia entre versicolor y setosa fue de -0.658 y resultó negativa
+porque se restó la media de setosa a la de versicolor, siendo mayor la de setosa.
+La diferencia entre virginica y setosa fue de -0.454 y resultó negativa
+porque se restó la media de setosa a la de virginica, siendo mayor la de setosa.
+La diferencia entre virginica y versicolor  fue de 0.204 y resultó positiva
+porque se restó la media de versicolor a la de virginica, siendo mayor la de virginica.
+La diferencia más grande se encontró entre versicolor y setosa,
+y la diferencia más pequeña se encontró entre virginica y versicolor.
+Esto apoya a la idea de que las muestras de las 3 especies diferentes,
+pertenecen a 3 poblaciones distintas.
 
 
 # Correlación y regresión lineal
 
 ## coeficiente de correlación de Pearson (r) y coeficiente muestral de determinación (r**2)
 
-## Estadística descriptiva
+### Estadística descriptiva
 
-### Para el largo del pétalo
+Para el largo del pétalo:
 ```{r}
 iris %>% group_by(Species) %>%
   summarise(media = mean(Petal.Length), mediana = median(Petal.Length),
@@ -485,7 +522,7 @@ iris %>% group_by(Species) %>%
             error_estandar = (sd(Petal.Length) / sqrt(length(Petal.Length))))
 ```
 
-### Para el ancho del pétalo
+Para el ancho del pétalo:
 ```{r}
 iris %>% group_by(Species) %>%
   summarise(media = mean(Petal.Width), mediana = median(Petal.Width),
@@ -496,18 +533,23 @@ iris %>% group_by(Species) %>%
             error_estandar = (sd(Petal.Width) / sqrt(length(Petal.Width))))
 ```
 # Objetivo 3
-#### Con esta información *Buscaremos si hay correlación entre la longitud del pétalo y el ancho del pétalo de versicolor*
+#### *Buscaremos si hay correlación entre la longitud del pétalo y el ancho del pétalo de versicolor*
 
 ## Preparamos los datos
-Crearemos el objeto irislineal, el cual contendrá nuestras variables exclusivamente de la especie versicolor;
-de no hacer esto, podemos olvider filtrar al momento de hacer el modelo de la regresión lineal
-y los valores esperados serán muy distintos porque se estarán considerando también los datos de las otras especies.
+Crearemos el objeto irislineal,
+el cual contendrá nuestras variables exclusivamente de la especie versicolor;
+de no hacer esto, podemos olvider filtrar al momento de hacer el modelo
+de la regresión lineal y los valores esperados serían muy distintos
+porque se estarían considerando también los datos de las otras especies.
 ```{r}
-versicolor.longitud_petalo <- iris %>% filter(Species == "versicolor") %>% select(Petal.Length)
+versicolor.longitud_petalo <- iris %>% filter(Species == "versicolor") %>%
+  select(Petal.Length)
 
-versicolor.ancho_petalo <- iris %>% filter(Species == "versicolor") %>% select(Petal.Width)
+versicolor.ancho_petalo <- iris %>% filter(Species == "versicolor") %>%
+  select(Petal.Width)
 
-irislineal <- iris %>% filter(Species == "versicolor") %>% select(Petal.Length, Petal.Width)
+irislineal <- iris %>% filter(Species == "versicolor") %>%
+  select(Petal.Length, Petal.Width)
 ```
 
 ## Representación Gráfica
@@ -528,7 +570,11 @@ shapiro.test(as.numeric(unlist(versicolor.longitud_petalo)))
 
 shapiro.test(as.numeric(unlist(versicolor.ancho_petalo)))
 ```
-El ancho de pétalo de versicolor no cumple con una distribución normal, el cual es un requisito para sacar coeficiente de correlación; entendemos que no se debería hacer la prueba si no se normalizan los datos, pero ya que el propósito de este trabajo es practicar, continuaremos usándolos de cualquier manera.
+El ancho de pétalo de versicolor no cumple con una distribución normal,
+el cual es un requisito para sacar coeficiente de correlación;
+entendemos que no se debería hacer la prueba si no se normalizan los datos,
+pero ya que el propósito de este trabajo es practicar,
+continuaremos usándolos de cualquier manera.
 
 ### Representación con residuales
 ```{r}
@@ -544,7 +590,8 @@ iris %>% filter(Species == "versicolor") %>%
   geom_point(aes(color = abs(residual), size = 0.1)) +
   scale_color_continuous(low = "green", high = "red") +
   guides(color = FALSE, size = FALSE) +
-   geom_segment(aes(xend = Petal.Length, yend = Petal.Width), color = "red", size = 0.5)+
+   geom_segment(aes(xend = Petal.Length, yend = Petal.Width), color = "red",
+                size = 0.5)+
   theme_minimal() +
   labs(title = "Correlación de las características del pétalo de la especie versicolor",
                          subtitle = "Regresión lineal con componentes residuales",
@@ -554,7 +601,9 @@ iris %>% filter(Species == "versicolor") %>%
 
 
 ## Covarianza
-La fórmula del coeficiente de correlación es la covarianza entre la raíz cuadrada del producto de las varianzas (estas últimas ya fueron calculadas)
+La fórmula del coeficiente de correlación es la covarianza
+entre la raíz cuadrada del producto de las varianzas
+(estas últimas ya fueron calculadas).
 ```{r}
 cov(versicolor.longitud_petalo, versicolor.ancho_petalo, method = "pearson")
 ```
@@ -566,11 +615,18 @@ cor(versicolor.longitud_petalo, versicolor.ancho_petalo, method = "pearson")
 ```
 La correlación fue positiva. r=0.7866681
 
-Usaremos la función cor.test() para poder indicar si se espera una asociación positiva ("greater") o una asociación negativa ("less"). *H0 es que no hay correlación (r=0) y al elegir "greater" H1 es que hay correlación positiva (r>0)*.
+Usaremos la función cor.test() para poder indicar si se espera
+una asociación positiva ("greater") o una asociación negativa ("less").
+*H0 es que no hay correlación (r=0) y al elegir "greater" H1 es que hay correlación positiva (r>0)*.
 ```{r}
-cor.test(c(versicolor.longitud_petalo$Petal.Length), c(versicolor.ancho_petalo$Petal.Width), method = "pearson", alternative = "greater")
+cor.test(c(versicolor.longitud_petalo$Petal.Length),
+         c(versicolor.ancho_petalo$Petal.Width),
+         method = "pearson", alternative = "greater")
 ```
-Esta función arrojó el mismo r=0.7866681, pero además rechaza la hipótesis nula de que no hay correlación. Ya que usa un nivel de confianza del 95%, alfa es 0.05, y al ser p<alfa, se acepta la hipótesis alternativa de que sí hay una correlación positiva.
+Esta función arrojó el mismo r=0.7866681,
+pero además rechaza la hipótesis nula de que no hay correlación.
+Ya que usa un nivel de confianza del 95%, alfa es 0.05, y al ser p<alfa,
+se acepta la hipótesis alternativa de que sí hay una correlación positiva.
 
 ## Coeficiente de correlación obtenido "manualmente"
 ```{r}
@@ -600,14 +656,15 @@ r**2
 entonces r**2 = 0.6188467
 
 ## Regresión lineal
-Cuando hicimos la representación con residuales, creamos el objeto *lineal* que contiene el modelo de la regresión lineal hecho por la función lm(), ahora, lo analizaremos:
+Cuando hicimos la representación con residuales, creamos el objeto *lineal*
+que contiene el modelo de la regresión lineal hecho por la función lm(),
+ahora, lo analizaremos:
 ```{r}
 summary(lineal)
 ```
 #### La ecuación de la recta es: *y = -0.08429 + 0.33105x*
 Con esta ecuación resultante de la regresión podemos hacer predicciones de anchos
-del pétalo con longitudes supuestas. Por ejemplo suponiendo largos del pétalo de 
-entre 5 y 7 centímetros.
+del pétalo con longitudes supuestas.
 
 
 ### Intervalo de confianza de la regresión lineal
@@ -616,7 +673,8 @@ confint(lineal)
 ```
 
 
-Para ver la relación entre los residuales y las variables, graficaremos en torno a 0 con variabilidad constante a lo largo de X.
+Para ver la relación entre los predictores y las variables,
+graficaremos los residuales en torno a 0 con variabilidad constante a lo largo de X.
 ```{r}
 plot3 <- ggplot(data = irislineal, aes(Petal.Length, lineal$residual)) +
   geom_point() + geom_smooth(color = "firebrick") + geom_hline(yintercept = 0) +
@@ -644,11 +702,17 @@ p>alfa, Son normales
 
 
 ## Conclusión de la correlación y la regresión lineal:
-El coeficiente de correlación indica una asociación positiva, es decir, valores grandes de la longitud del pétalo de versicolor se asocian con valores grandes del ancho de pétalo de versicolor. Más específico, el coeficiente muestral de determinación indica que el 61.88% de las variaciones en el ancho del pétalo de versicolor podrían explicarse por los valores de la longitud del pétalo de esta especie. Con la aclaración de que correlación no implica causalidad.
+El coeficiente de correlación indica una asociación positiva, es decir,
+valores grandes de la longitud del pétalo de versicolor se asocian
+con valores grandes del ancho de pétalo de versicolor.
+Más específico, el coeficiente muestral de determinación indica que el 61.88%
+de las variaciones en el ancho del pétalo de versicolor podrían explicarse
+por los valores de la longitud del pétalo de esta especie.
+*Con la aclaración de que correlación no implica causalidad*.
 
 En cuanto a la regresión lineal y las predicciones que obtenemos de ésta a partir
 de la ecuación lineal, notamos que al incrementarse el valor del largo del pétalo
-crece igualmente el ancho. Es decir, al aumentar el largo del pétalo, aumenta el
+crece el ancho. Es decir, al aumentar el largo del pétalo, aumenta el
 ancho.
 
 
@@ -662,4 +726,5 @@ matriz <-matrix(c(80, 25, 85, 35, 92, 50),nrow=2)
 matriz
 chisq.test(matriz)
 ```
-Si la prueba no se rechaza, indica que no depende una variable de la otra. Si la prueba sí se rechaza, indica que sí depende una variable de la otra.
+Si la prueba no se rechaza, indica que no depende una variable de la otra.
+Si la prueba sí se rechaza, indica que sí depende una variable de la otra.
