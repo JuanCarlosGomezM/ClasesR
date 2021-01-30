@@ -57,7 +57,7 @@ summary(iris)
 ```
 Cabe mencionar que los resultados del summary no están separados por especie
 
-## Gráfico exploratorio
+### Gráfico exploratorio
 ```{r}
 plot(iris)
 ```
@@ -78,7 +78,7 @@ iris %>% group_by(Species) %>%
             error_estandar = (sd(Sepal.Length) / sqrt(length(Sepal.Length))))
 ```
 
-Para calcular las modas
+#### Para calcular las modas
 ```{r}
 Moda <- function(x) {
   valores <- unique(x)
@@ -495,7 +495,7 @@ iris %>% group_by(Species) %>%
             rango_intercuartil = IQR(Petal.Width),
             error_estandar = (sd(Petal.Width) / sqrt(length(Petal.Width))))
 ```
-## Objetivo 3
+# Objetivo 3
 #### Con esta información *Buscaremos si hay correlación entre la longitud del pétalo y el ancho del pétalo de versicolor*
 
 ## Preparamos los datos
@@ -653,6 +653,10 @@ ancho.
 
 
 # Ejemplo de uso de Chi cuadrada
+
+También llamada *x cuadrada de Pearson*, se utiliza cuando se tienen variables 
+categóricas. Como sexo, países, marcas, etcétera. Y existe discrepancia entre
+la distribución observada y la teórica.
 ```{r}
 matriz <-matrix(c(80, 25, 85, 35, 92, 50),nrow=2)
 matriz
