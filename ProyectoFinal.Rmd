@@ -76,6 +76,7 @@ iris %>% group_by(Species) %>%
             coeficiente_variacion = (sd(Sepal.Length) / mean(Sepal.Length)),
             rango_intercuartil = IQR(Sepal.Length),
             error_estandar = (sd(Sepal.Length) / sqrt(length(Sepal.Length))))
+
 ```
 
 #### Para calcular las modas
